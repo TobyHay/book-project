@@ -4,15 +4,10 @@ on:
     branches:
     - '**'
 
-    paths-ignore:
-      - '.**/'
-
   pull_request:
     branches:
     - main
 
-    paths-ignore:
-      - '.**/'
 
 jobs:
   lint-code:

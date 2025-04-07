@@ -4,9 +4,15 @@ on:
     branches:
     - '**'
 
+    paths-ignore:
+      - '.**/'
+
   pull_request:
     branches:
     - main
+
+    paths-ignore:
+      - '.**/'
 
 jobs:
   lint-code:
@@ -26,7 +32,7 @@ jobs:
     - run: |
         echo installing dependencies...
         
-        $(git ls-tree -t HEAD:./ | awk '{if ($2 == "tree") print $4;}') > all_dir.txt
+        $(git ls-tree -- . '.*' -t HEAD:./ | awk '{if ($2 == "tree") print $4;}') > all_dir.txt
 
         num_of_dir=$(wc -l all_dir.txt | awk ' { print $1 } ')
 

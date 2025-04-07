@@ -1,0 +1,1 @@
+# Folder for the email script and related scripts

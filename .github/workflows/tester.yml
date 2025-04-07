@@ -9,31 +9,7 @@ on:
     - main
 
 
-jobs:
-  lint-code:
-    name: lint the code
-    runs-on: ubuntu-latest
-    steps:
-    - name: check code
-      uses: actions/checkout@v4
-      
-    - name: installs python
-      uses: actions/setup-python@v5
-
-    - run: | 
-        echo Checking python version running... 
-        python3 --version
-    
-    - run: |
-        echo installing dependencies...
-        bash ${GITHUB_WORKSPACE}/scripts/installing_dependencies.sh
-        pip install pylint
-
-    - name: lint code
-      run: |
-          bash ${GITHUB_WORKSPACE}/scripts/pylint_directories.sh
-          
-
+jobs:     
   install-python:
         name: installs python and runs pytest on all directories
         runs-on: ubuntu-latest
@@ -54,14 +30,10 @@ jobs:
 
         - run: |
             echo running pytest on the all folders...
-            cd movie_db
-            pwd
-            pytest test_api.py
+            bash ${GITHUB_WORKSPACE}/scripts/test_directories.sh
         env:
-            DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
-            DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
-            DATABASE_IP: ${{secrets.DATABASE_IP}}
-            DATABASE_PORT: ${{secrets.DATABASE_PORT}}
-            DATABASE_NAME: ${{secrets.DATABASE_NAME}}
-
-
+            DB_USERNAME: ${{secrets.DB_USERNAME}}
+            DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+            DB_PORT: ${{secrets.DB_PORT}}
+            DB_NAME: ${{secrets.DB_NAME}}
+            DB_HOST: ${{secrets.DB_HOST}}

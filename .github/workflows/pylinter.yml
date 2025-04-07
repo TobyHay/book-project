@@ -26,7 +26,7 @@ jobs:
     - run: |
         echo installing dependencies...
         
-        ls -d */ > all_dir.txt
+        ls -d > all_dir.txt
         num_of_dir=$(wc -l all_dir.txt | awk ' { print $1 } ')
 
         for i in $(seq 1 ${num_of_dir});

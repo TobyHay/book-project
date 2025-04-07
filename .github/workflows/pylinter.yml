@@ -34,11 +34,11 @@ jobs:
         do
             dir_in_repo=$(sed "${i}q;d" all_dir.txt)
 
-            if [[ "$dir_in_repo" == "terraform/" || "$dir_in_repo" == ".github" ]]; then
+            if [[ "$dir_in_repo" == "terraform" || "$dir_in_repo" == ".github" ]]; then
                 continue
             fi
 
-            if test -f ${dir_in_repo}requirements.txt; then
+            if test -f ${dir_in_repo}/requirements.txt; then
                 cd ${dir_in_repo}
                 echo ${dir_in_repo}
                 pip install -r requirements.txt

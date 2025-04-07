@@ -1,0 +1,44 @@
+name: Automated Pylinting
+on: 
+  push:
+    branches:
+    - '**'
+
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  lint-code:
+    name: lint the code
+    runs-on: ubuntu-latest
+    steps:
+    - name: check code
+      uses: actions/checkout@v4
+      
+    - name: installs python
+      uses: actions/setup-python@v5
+
+    - run: | 
+        echo Checking python version running... 
+        python3 --version
+        
+    - run: |
+        echo installing dependencies...
+        pip install -r requirements.txt
+        pip install pylint
+    
+    - name: lint code
+      run: |
+          ls -d */ > all_dir.txt
+          echo pylinting all python files in dir
+
+          num_of_dir=$(wc -l all_dir.txt | awk ' { print $1 } ')
+          for i in $(seq 1 ${num_of_dir});
+          do
+            dir_in_repo=$(sed "${i}q;d" all_dir.txt)
+            pylint --recursive=y ${dir_in_repo} --fail-under 8
+          done
+
+          echo pylinting rest of python files in main repo
+          pylint '*.py' --fail-under 8

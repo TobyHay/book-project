@@ -28,13 +28,17 @@ jobs:
         echo installing dependencies...
         
         git ls-tree -t HEAD:./ | awk '{if ($2 == "tree") print $4;}' | grep -e '^[a-zA-Z]' > all_dir.txt
+        cat all_dir.txt
+
         num_of_dir=$(wc -l all_dir.txt | awk ' { print $1 } ')
+
+        echo ${num_of_dir}
         
         if [[ "$num_of_dir" != "0" ]]; then
             for i in $(seq 1 ${num_of_dir});
             do
                 dir_in_repo=$(sed "${i}q;d" all_dir.txt)
-
+                echo ${dir_in_repo}
                 if [[ "$dir_in_repo" == "terraform" ]]; then
                     echo "found"
                     continue

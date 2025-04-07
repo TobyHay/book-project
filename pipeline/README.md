@@ -1,19 +1,19 @@
-# Folder for the pipeline and related scripts
+# Overview
 
+This module focuses on extracting author information and contains the following scripts:
+- `extract.py` : Extracts user information for a given url specified in the code and returns a dictionary with values:
+```
+{
+    'author_name':author_name,
+    'author_page':author_url,
+    'average_rating':average_rating,
+    'rating_count':rating_count,
+    'review_count':review_count
+}
+```
 
-## Pipeline Overview
+# Pre-requisites
 
+1- `pip install -r requirements.txt`
+2- specify an author as a parameter for get_user_info() (SUBJECT TO CHANGE)
 
-The pipeline is split into 3 main components:
-
-1. extract.py: ...
-
-2. transform.py: ...
-
-3. load.py: ...
-
-4. pipeline.py: ...
-
-To run the pipeline:
-
-`python pipeline.py`

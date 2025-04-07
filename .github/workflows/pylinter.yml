@@ -22,12 +22,30 @@ jobs:
     - run: | 
         echo Checking python version running... 
         python3 --version
-        
+    
     - run: |
         echo installing dependencies...
-        pip install -r requirements.txt
+        
+        ls -d */ > all_dir.txt
+        num_of_dir=$(wc -l all_dir.txt | awk ' { print $1 } ')
+
+        for i in $(seq 1 ${num_of_dir});
+        do
+            dir_in_repo=$(sed "${i}q;d" all_dir.txt)
+
+            if [[ "$dir_in_repo" == "terraform/" ]]; then
+                continue
+            fi
+
+            if test -f ${dir_in_repo}requirements.txt; then
+                cd ${dir_in_repo}
+                echo ${dir_in_repo}
+                pip install -r requirements.txt
+                cd ../
+            fi
+        done
         pip install pylint
-    
+
     - name: lint code
       run: |
           ls -d */ > all_dir.txt

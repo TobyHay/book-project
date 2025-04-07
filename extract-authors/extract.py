@@ -1,9 +1,10 @@
-import requests
+'''This module explores extracting information from goodreads.com author pages.'''
 import urllib.request
 from bs4 import BeautifulSoup
 
 
-TEST_AUTHOR_URL = 'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true'
+TEST_AUTHOR_URL = '''https://www.goodreads.com/author/show/153394
+.Suzanne_Collins?from_search=true&from_srp=true'''
 
 
 def get_author_page_parser(author_url:str) -> BeautifulSoup:
@@ -13,9 +14,14 @@ def get_author_page_parser(author_url:str) -> BeautifulSoup:
     return BeautifulSoup(html, "lxml")
 
 def get_author_name_from_url(url:str) -> str:
-    end_index = url.rfind('?')
+    """Gets name from goodreads.com author url and assumes url format:
+    https:// ... /id.author_name or https:// ... /id.author_name?parameters"""
     start_index = url.rfind('.')+1
-    return url[start_index:end_index]
+    name = url[start_index:]
+    if "?" in name:
+        end_index = name.rfind('?')
+        return name[:end_index].replace("_"," ")
+    return name.replace("_"," ")
 
 def get_user_info(author_url:str) -> dict:
     '''Scrapes average_rating, rating_count and review_count
@@ -23,10 +29,12 @@ def get_user_info(author_url:str) -> dict:
     author_soup:BeautifulSoup = get_author_page_parser(author_url)
     aggregate_contents = author_soup.find("div",class_="hreview-aggregate")
 
+    author_name = get_author_name_from_url(author_url)
     average_rating = aggregate_contents.find("span",class_="average").text
     rating_count = aggregate_contents.find("span",class_="votes").text.strip()
     review_count = aggregate_contents.find("span",class_="count").text.strip()
     return {
+        'author_name':author_name,
         'author_page':author_url,
         'average_rating':average_rating,
         'rating_count':rating_count,
@@ -35,6 +43,4 @@ def get_user_info(author_url:str) -> dict:
 
 
 if __name__ == '__main__':
-    author_page_soup = get_author_page_parser(TEST_AUTHOR_URL)   
-    print(get_user_info(author_page_soup))
-
+    print(get_user_info(TEST_AUTHOR_URL))

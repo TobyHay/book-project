@@ -1,5 +1,5 @@
+pytest
 pylint
 requests
 bs4
 lxml
-urllib

@@ -27,7 +27,7 @@ jobs:
     - run: |
         echo installing dependencies...
         
-        $(git ls-tree -t HEAD:./ | awk '{if ($2 == "tree") print $4;}') > all_dir.txt
+        $(git ls-tree -t HEAD:./ | awk '{if ($2 == "tree") print $4;}' | grep -e '^[a-zA-Z]') > all_dir.txt
 
         num_of_dir=$(wc -l all_dir.txt | awk ' { print $1 } ')
 
@@ -51,7 +51,7 @@ jobs:
 
     - name: lint code
       run: |
-          $(git ls-tree -t HEAD:./ | awk '{if ($2 == "tree") print $4;}') > all_dir.txt
+          $(git ls-tree -t HEAD:./ | awk '{if ($2 == "tree") print $4;}' | grep -e '^[a-zA-Z]') > all_dir.txt
           echo pylinting all python files in dir
 
           num_of_dir=$(wc -l all_dir.txt | awk ' { print $1 } ')

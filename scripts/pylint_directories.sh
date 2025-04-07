@@ -1,27 +1,16 @@
 git ls-tree -t HEAD:./ | awk '{if ($2 == "tree") print $4;}' | grep -e '^[a-zA-Z]' > all_dir.txt
-cat all_dir.txt
+
+echo pylinting all python files in every dir
 
 num_of_dir=$(wc -l all_dir.txt | awk ' { print $1 } ')
 
-echo ${num_of_dir}
+for i in $(seq 1 ${num_of_dir});
+do
+    dir_in_repo=$(sed "${i}q;d" all_dir.txt)
+    pylint --recursive=y ${dir_in_repo} --fail-under 8
+done
 
-if [[ "$num_of_dir" != "0" ]]; then
-    for i in $(seq 1 ${num_of_dir});
-    do
-        dir_in_repo=$(sed "${i}q;d" all_dir.txt)
-        echo ${dir_in_repo}
-        if [[ "$dir_in_repo" == "terraform" ]]; then
-            echo "found"
-            continue
-        fi
+echo pylinting rest of python files in main repo
+pylint '*.py' --fail-under 8
 
-        if test -f ${dir_in_repo}/requirements.txt; then
-            cd ${dir_in_repo}
-            echo ${dir_in_repo}
-            pip install -r requirements.txt
-            cd ../
-        fi
-    done
-else
-    echo "No directories to work with"
-fi
+echo "All files pylinted"

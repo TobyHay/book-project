@@ -167,5 +167,9 @@ if __name__ == "__main__":
                      'author_url': '....',
                      'books': books_lists}]
 
-    load_to_database(author_lists, connection)
-    connection.close()
+    try:
+        load_to_database(author_lists, connection)
+    except Exception as e:
+        raise Exception(f"Error: {e}")
+    finally:
+        connection.close()

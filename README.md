@@ -8,7 +8,7 @@
 
 
 ## 📖 Overview
-It's a difficult task to track how well authors are performing, especially when important metrics can be scattered across multiple websites. To assist publishers and analysts who may be interested in gaining a better understanding on how specific authors are performing. This project will help extract and compile data regarding the performance of authors into one consistent location.
+It's a difficult task to track how well authors are performing, especially when important metrics can be scattered across multiple websites. This project will help extract and compile data regarding the performance of authors into one consistent location, which can be used to assist publishers and analysts who may be interested in gaining a better understanding on how specific authors are performing.
 
 This project includes a dashboard that displays key statistics for all authors within the database. Users can add new authors by submitting a link to an author’s [Goodreads profile](https://www.goodreads.com/). Additionally, users can opt into email notifications for any updates on selected authors.
 

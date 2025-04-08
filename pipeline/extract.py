@@ -34,13 +34,21 @@ def get_author_aggregate_data(author_soup:BeautifulSoup) -> dict:
     average_rating = aggregate_contents.find("span",class_="average").text
     rating_count = aggregate_contents.find("span",class_="votes").text.strip()
     review_count = aggregate_contents.find("span",class_="count").text.strip()
-    shelved_count = aggregate_contents.find("span",class_="count").text.strip()
+
+    # goodreads_followers = NotImplementedError
+
+    shelved_count = author_soup.find("div",class_="h2Container gradientHeaderContainer")
+    print(shelved_count.prettify())
+    
+    
+    
+    raise NotImplementedError
     return {
         'average_rating':average_rating,
         'rating_count':rating_count,
         'review_count':review_count,
         'shelved_count':shelved_count,
-        'goodreads_followers':'a'
+        'goodreads_followers':goodreads_followers
     }
 
 

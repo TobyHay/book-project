@@ -3,3 +3,5 @@ pylint
 requests
 bs4
 lxml
+psycopg2
+pandas

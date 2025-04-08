@@ -1,4 +1,5 @@
 '''This module explores extracting information from goodreads.com author pages.'''
+import time
 import urllib.request
 from bs4 import BeautifulSoup
 
@@ -82,10 +83,10 @@ def slice_book_rating_count(aggregate_text:str) -> str:
 def get_book_aggregate_data(book_soup:BeautifulSoup) -> dict:
     '''Given a book card's html in the goodreads author's book list,
       scrape all aggregate data for the given book'''
-    avg_and_rating = book_soup.find('span',class_='minirating').text
+    average_book_rating_and_rating_count = book_soup.find('span',class_='minirating').text
     return {
-        'avg_rating':slice_book_average_rating(avg_and_rating),
-        'rating_count':slice_book_average_rating(avg_and_rating)
+        'average_rating':slice_book_average_rating(average_book_rating_and_rating_count),
+        'rating_count':slice_book_rating_count(average_book_rating_and_rating_count)
     }
     
 
@@ -95,14 +96,20 @@ def get_year_published(book_soup:BeautifulSoup) -> dict:
     return year_published.split()[-4] # magic number 
 
 
-def get_individual_book_data(book_soup:BeautifulSoup) -> dict:
+def get_individual_book_data(book_container_soup:BeautifulSoup) -> dict:
     '''Book.'''  #rewrite
+    book_url = get_book_url(book_container_soup)
+    book_page_soup = get_soup(book_url)
+    
     book_data = {
-        'book_title':get_book_title(book_soup),
-        'small_image_url':get_book_small_image_url(book_soup),
-        'year_published':get_year_published(book_soup)
+        'book_title':get_book_title(book_container_soup),
+        'big_image_url':get_book_big_image_url(book_page_soup),
+        'small_image_url':get_book_small_image_url(book_container_soup),
+        'review_count':get_book_review_count(book_page_soup),
+        'year_published':get_year_published(book_container_soup)
     }
-    book_data.update(get_book_aggregate_data(book_soup))
+    aggregate_data:dict = get_book_aggregate_data(book_container_soup)
+    book_data.update(aggregate_data)
     return book_data
 
 
@@ -127,8 +134,8 @@ def get_author_image(author_soup:BeautifulSoup) -> dict:
     return author_soup.find('img',itemprop="image").get('src')
 
 
-def get_authors_book_list_data(author_soup:BeautifulSoup) -> dict:
-    ''''''
+def get_authors_books_measurement_data(author_soup:BeautifulSoup) -> dict:
+    '''AAAA''' # COMMENT HERE
     books_url = get_authors_books_url(author_soup)
     books_soup = get_soup(books_url)
 
@@ -144,10 +151,9 @@ def get_author_data(author_url:str) -> dict:
     author_soup:BeautifulSoup = get_soup(author_url)
     
     author_name = get_author_name(author_soup)
-    aggregate_data = get_author_aggregate_data(author_soup)
 
-    books_data = get_authors_book_list_data(author_soup)
-
+    aggregate_data: dict = get_author_aggregate_data(author_soup)
+    books_data: dict = get_authors_books_measurement_data(author_soup)
     author_data = {
         'author_name':author_name,
         'author_url':author_url
@@ -157,7 +163,24 @@ def get_author_data(author_url:str) -> dict:
     return author_data
 
 
+def get_book_url(book_soup:BeautifulSoup) -> str:
+    book_url_path = book_soup.find('a',itemprop='url').get('href')
+    return GOODREADS_BASE_URL+ book_url_path
+
+def get_book_big_image_url(book_url_soup:BeautifulSoup) -> str:
+    image_url = book_url_soup.find('div',class_='BookCover__image')
+    return image_url.find('img').get('src')
+
+def get_book_review_count(book_url_soup:BeautifulSoup) -> str:
+    review_count = book_url_soup.find('div',class_='RatingStatistics__meta').get('aria-label')
+    slice_index_start = review_count.rfind('d')+2
+    slice_index_end = review_count.rfind('reviews')-1
+    return review_count[slice_index_start:slice_index_end]
+
+
 if __name__ == '__main__':
     author_url = 'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true'
-
+    
+    start_time = time.time()
     print(get_author_data(author_url))
+    print('time:',time.time()-start_time)

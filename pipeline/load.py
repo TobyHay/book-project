@@ -161,3 +161,6 @@ if __name__ == "__main__":
         new_books = [book for book in author['books']
                      if book not in db_books]
         upload_books(new_books, connection)
+
+    # Include author_measurement
+    # Include book_measurement

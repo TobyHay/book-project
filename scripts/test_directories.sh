@@ -1,3 +1,4 @@
+"" > testing_result.txt
 git ls-files | grep -e '^[a-zA-Z]*/test_[a-z]*\.py' > all_test_file_paths.txt
 
 echo pytesting all python files in every directory
@@ -12,3 +13,11 @@ do
 done
 
 echo "All files tested"
+
+test_result=$(grep -w "FAILED" testing_result.txt)
+if [[ -n "$test_result" ]]; then
+    echo "Failing tests present!"
+    exit 1
+else
+    echo "All tests passed!"
+fi

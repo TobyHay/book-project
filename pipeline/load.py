@@ -78,7 +78,7 @@ def get_database_books(id: int, conn: psycopg2.connect) -> list[dict]:
     returns list of dict of all books in database'''
 
     query = '''
-    SELECT title, release_date, image_url FROM book
+    SELECT * FROM book
     WHERE author_id = %s'''
 
     books_df = pd.read_sql(query, conn, params=(id,))
@@ -122,7 +122,7 @@ def upload_author_measurement(rating_info: list[dict], conn: psycopg2.connect) -
                                     author_id,
                                     shelved_count,
                                     review_count)
-    VALUES (%s, %s, %s, %s, %s, %s)'''
+    VALUES (%s, %s, %s, %s, %s)'''
     try:
         cursor.executemany(query, values)
         conn.commit()
@@ -132,7 +132,7 @@ def upload_author_measurement(rating_info: list[dict], conn: psycopg2.connect) -
         cursor.close()
 
 
-def load_to_database(author_data: list[dict]) -> None:
+def load_to_database(author_data: list[dict], connection: psycopg2.connect) -> None:
     db_authors = get_database_authors(connection)
 
     new_authors = [author for author in author_data
@@ -141,6 +141,8 @@ def load_to_database(author_data: list[dict]) -> None:
 
     for author in author_data:
         author_id = get_author_id(author, connection)
+        for book in author['books']:
+            book['author_id'] = author_id
 
         db_books = get_database_books(author_id, connection)
         new_books = [book for book in author['books']
@@ -165,4 +167,5 @@ if __name__ == "__main__":
                      'author_url': '....',
                      'books': books_lists}]
 
-    load_to_database(author_lists)
+    load_to_database(author_lists, connection)
+    connection.close()

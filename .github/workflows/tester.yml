@@ -31,6 +31,11 @@ jobs:
         - run: |
             echo running pytest on the all folders...
             bash ${GITHUB_WORKSPACE}/scripts/test_directories.sh
+        
+        - run: |
+            if [[ "FAILED" in "$(cat testing_result.txt)" ]]; then
+                run exit 1
+                
         env:
             DB_USERNAME: ${{secrets.DB_USERNAME}}
             DB_PASSWORD: ${{secrets.DB_PASSWORD}}

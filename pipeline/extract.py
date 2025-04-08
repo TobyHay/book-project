@@ -2,29 +2,37 @@
 import urllib.request
 from bs4 import BeautifulSoup
 
+GOODREADS_BASE_URL = 'https://www.goodreads.com'
+BOOKS_LIST_LIMIT_URL_PARAMETERS = '?page=1&per_page=100'
 
 
-def get_author_page_parser(author_url:str) -> BeautifulSoup:
-    '''Returns a beautifulsoup HTML parser for a given goodreads.com author url.'''
-    with urllib.request.urlopen(author_url) as page:
+def get_soup(url:str) -> BeautifulSoup:
+    '''Returns a beautifulsoup HTML parser for a given goodreads.com url.'''
+    with urllib.request.urlopen(url) as page:
         html = page.read().decode('utf-8')
     return BeautifulSoup(html, "lxml")
 
 
-def get_author_name_from_url(url:str) -> dict:
-    """Gets name from goodreads.com author url and assumes url format:
-    https:// ... /id.author_name or https:// ... /id.author_name?parameters"""
-    start_index = url.rfind('.')+1
-    name = url[start_index:]
-    if "?" in name:
-        end_index = name.rfind('?')
-        return {'author_name':name[:end_index].replace("_"," ")}
-    return {'author_name':name.replace("_"," ")}
+def get_authors_books_url(author_soup:BeautifulSoup) -> str:
+    '''Gets the link to the author's books list from their goodreads profile'''
+    books_url = author_soup.find("a",string='Suzanne Collins’s books')
+    return GOODREADS_BASE_URL + books_url.get('href') + BOOKS_LIST_LIMIT_URL_PARAMETERS
 
 
-def get_author_name_from_soup(soup:BeautifulSoup) -> dict:
+def get_author_name(author_soup:BeautifulSoup) -> dict:
     '''gets author name from the soup for the author goodreads page'''
-    pass
+    author_name = author_soup.find("h1",class_="authorName").text
+    return author_name.strip()
+
+
+def get_author_follower_count(author_soup:BeautifulSoup) -> str:
+    '''Gets the authors follower count from their goodreads author page soup '''
+    follower_count = author_soup.find("div",class_="h2Container gradientHeaderContainer")
+    follower_count = follower_count.find("h2",class_="brownBackground").text
+
+    start_index = follower_count.rfind('(')+1
+    end_index = len(follower_count)-1
+    return follower_count[start_index:end_index]
 
 
 def get_author_aggregate_data(author_soup:BeautifulSoup) -> dict:
@@ -34,27 +42,14 @@ def get_author_aggregate_data(author_soup:BeautifulSoup) -> dict:
     average_rating = aggregate_contents.find("span",class_="average").text
     rating_count = aggregate_contents.find("span",class_="votes").text.strip()
     review_count = aggregate_contents.find("span",class_="count").text.strip()
+    followers = get_author_follower_count(author_soup)
 
-    # goodreads_followers = NotImplementedError
-
-    shelved_count = author_soup.find("div",class_="h2Container gradientHeaderContainer")
-    print(shelved_count.prettify())
-    
-    
-    
-    raise NotImplementedError
     return {
         'average_rating':average_rating,
         'rating_count':rating_count,
         'review_count':review_count,
-        'shelved_count':shelved_count,
-        'goodreads_followers':goodreads_followers
+        'goodreads_followers':followers
     }
-
-
-def get_authors_books_url(author_soup:BeautifulSoup) -> str:
-    '''Gets the link to the author's books from their goodreads profile'''
-    author_soup.find("a",class_="hreview-aggregate")
 
 
 def get_book_aggregate_data(author_soup:BeautifulSoup) ->dict:
@@ -64,24 +59,40 @@ def get_book_aggregate_data(author_soup:BeautifulSoup) ->dict:
 
 def get_authors_books(author_soup:BeautifulSoup) -> dict:
     ''''''
-    books = {'books':[]}
+    shelved_count = NotImplementedError
+    books = {'shelved_count':shelved_count,'books':[]}
     return 
 
-def get_user_info(author_url:str) -> dict:
+def get_author_data(author_url:str) -> dict:
     '''Scrapes average_rating, rating_count and review_count
       for a given goodreads.com author url.'''
-    author_soup:BeautifulSoup = get_author_page_parser(author_url)
+    author_soup:BeautifulSoup = get_soup(author_url)
     
-    author_name = get_author_name_from_url(author_url)
+    author_name = get_author_name(author_soup)
     aggregate_data = get_author_aggregate_data(author_soup)
 
-    author_info = {
+    author_data = {
         'author_name':author_name,
-        'author_page':author_url,
+        'author_page':author_url
     }
-    return author_info + aggregate_data
+    author_data.update(aggregate_data)
+    return author_data
+
+def get_author_image():
+    pass
+
+def get_book_image():
+    pass
+
+def get_book_list_data():
+    pass
+
+
 
 
 if __name__ == '__main__':
-    print(get_user_info('''https://www.goodreads.com/author/show/153394
-.Suzanne_Collins?from_search=true&from_srp=true'''))
+    url = 'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true'
+    suzanne_soup = get_soup(
+        'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true'
+        )
+    print(get_author_data(url))

@@ -21,5 +21,5 @@ Please setup a third file, `terraform.tfvars`, that specifies environmental vari
 AWS_ACCESS_KEY_ID=<your_personal_aws_access_key_id>
 AWS_SECRET_ACCESS_KEY=<your_personal_secret_access_key>
 DB_USERNAME=<your_database_username>
-DB_PASSWORD=<your_database_username>
+DB_PASSWORD=<your_database_password>
 ```

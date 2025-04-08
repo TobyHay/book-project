@@ -1,4 +1,4 @@
-'''This module explores loading information provided by transform.py to the RDS database'''
+'''This module loads data provided by transform.py to the RDS database'''
 
 import os
 import pandas as pd
@@ -28,7 +28,7 @@ def connect_to_database() -> psycopg2.connect:
 
 
 def get_database_authors(conn: psycopg2.connect) -> list[dict]:
-    '''Queries the databse for all author
+    '''Queries the database for all author
     returns list of dict of all authors in database'''
 
     query = 'SELECT name, author_url FROM author'
@@ -44,7 +44,7 @@ def upload_authors(author_info: list[dict], conn: psycopg2.connect) -> None:
               for author in author_info]
     query = '''
     INSERT INTO author (name, author_url)
-    VALUES (%s, %s, %s)'''
+    VALUES (%s, %s)'''
     try:
         cursor.executemany(query, values)
         conn.commit()
@@ -69,12 +69,12 @@ def get_author_id(author: dict, conn: psycopg2.connect) -> int:
         for db_author in db_authors:
             if db_author['author_url'] == author['author_url']:
                 return db_author['author_id']
-    else:
-        raise Exception("Unable to find author ID with name provided")
+
+    raise Exception("Unable to find author ID with name provided")
 
 
 def get_database_books(id: int, conn: psycopg2.connect) -> list[dict]:
-    '''Queries the databse for all books
+    '''Queries the database for all books
     returns list of dict of all books in database'''
 
     query = '''
@@ -112,7 +112,6 @@ def upload_author_measurement(rating_info: list[dict], conn: psycopg2.connect) -
 
     values = [(rating['rating_count'],
                rating['average_rating'],
-               rating['date_recorded'],
                rating['author_id'],
                rating['shelved_count'],
                rating['review_count'])
@@ -120,7 +119,6 @@ def upload_author_measurement(rating_info: list[dict], conn: psycopg2.connect) -
     query = '''
     INSERT INTO author_measurement (rating_count,
                                     average_rating,
-                                    date_recorded,
                                     author_id,
                                     shelved_count,
                                     review_count)
@@ -134,20 +132,7 @@ def upload_author_measurement(rating_info: list[dict], conn: psycopg2.connect) -
         cursor.close()
 
 
-if __name__ == "__main__":
-    connection = connect_to_database()
-
-    # Example author and book data
-    # Replace with data taken from transform.py
-    book_data = [
-        {'title': 'Book1', 'release_date': '...'},
-        {'title': 'Book2', 'release_date': '...'}
-    ]
-
-    author_data = [{'name': 'Author Name',
-                    'author_url': '....',
-                    'books': [book_data]}]
-
+def load_to_database(author_data: list[dict]) -> None:
     db_authors = get_database_authors(connection)
 
     new_authors = [author for author in author_data
@@ -164,3 +149,20 @@ if __name__ == "__main__":
 
     # Include author_measurement
     # Include book_measurement
+
+
+if __name__ == "__main__":
+    connection = connect_to_database()
+
+    # Example author and book data
+    # Replace with data taken from transform.py
+    books_lists = [
+        {'title': 'Book1', 'release_date': '...'},
+        {'title': 'Book2', 'release_date': '...'}
+    ]
+
+    author_lists = [{'name': 'Author Name',
+                     'author_url': '....',
+                     'books': books_lists}]
+
+    load_to_database(author_lists)

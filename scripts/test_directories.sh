@@ -9,9 +9,10 @@ for i in $(seq 1 ${num_of_dir});
 do
     test_file_in_repo=$(sed "${i}q;d" all_test_file_paths.txt)
     echo "Testing file from this path: $test_file_in_repo"
-    pytest ${test_file_in_repo} -x -vv
     pytest ${test_file_in_repo} -x -vv >> testing_result.txt
 done
+
+cat testing_result.txt
 
 echo "All files tested"
 

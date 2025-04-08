@@ -52,16 +52,91 @@ def get_author_aggregate_data(author_soup:BeautifulSoup) -> dict:
     }
 
 
-def get_book_aggregate_data(author_soup:BeautifulSoup) ->dict:
+def get_book_small_image_url(book_soup:BeautifulSoup) -> str:
+    '''Gets the url from the soup of an individual 
+    book container from the author's book list '''
+    return book_soup.find('img').get('src')
+
+
+def get_book_title(book_soup:BeautifulSoup) -> str:
+    '''Gets the book title from the soup of an individual 
+    book container from the author's book list '''
+    return book_soup.find('span',itemprop="name").text
+
+
+def slice_book_average_rating(aggregate_text:str) -> str:
+    '''Gets a book's average rating from the
+      author's books list page's aggregate data grey text''' # rephrase pls :,)
+    slice_index = aggregate_text.find('avg')
+    return aggregate_text[:slice_index-1]
+
+
+def slice_book_rating_count(aggregate_text:str) -> str:
+    '''Gets a book's rating count from the
+      author's books list page's aggregate data grey text''' # rephrase pls :,)
+    start_slice_index = aggregate_text.find('—')+2 # magic number 
+    end_slice_index = aggregate_text.rfind('r')-1 # magic number 
+    return aggregate_text[start_slice_index:end_slice_index]
+    
+
+def get_book_aggregate_data(book_soup:BeautifulSoup) -> dict:
     '''Given a book card's html in the goodreads author's book list,
-      scrape all aggregate data for the given card'''
+      scrape all aggregate data for the given book'''
+    avg_and_rating = book_soup.find('span',class_='minirating').text
+    return {
+        'avg_rating':slice_book_average_rating(avg_and_rating),
+        'rating_count':slice_book_average_rating(avg_and_rating)
+    }
+    
+
+def get_year_published(book_soup:BeautifulSoup) -> dict:
+    '''gets year published from a '''
+    year_published = book_soup.find('span',class_='greyText smallText uitext').text
+    return year_published.split()[-4] # magic number 
 
 
-def get_authors_books(author_soup:BeautifulSoup) -> dict:
+def get_individual_book_data(book_soup:BeautifulSoup) -> dict:
+    '''Book.'''  #rewrite
+    book_data = {
+        'book_title':get_book_title(book_soup),
+        'small_image_url':get_book_small_image_url(book_soup),
+        'year_published':get_year_published(book_soup)
+    }
+    book_data.update(get_book_aggregate_data(book_soup))
+    return book_data
+
+
+def get_author_books(books_list_soup:BeautifulSoup) -> list[dict]:
+    '''gets a list of all books in a author's goodreads book list'''
+    scraped_books = books_list_soup.find_all("tr")
+    formatted_books = []
+    for book in scraped_books:
+        formatted_books.append(get_individual_book_data(book))
+    return formatted_books
+
+
+def get_shelved_books_count(books_list_soup:BeautifulSoup) -> str:
+    '''Returns the shelved count for all of an author's books.'''
+    shelved_count = books_list_soup.find('div',class_='leftContainer')
+    shelved_count = shelved_count.find_next('div').text
+    return shelved_count.split()[-2] # Magic number
+
+
+def get_author_image(author_soup:BeautifulSoup) -> dict:
+    '''Gets the author image from the author's goodread page.'''
+    return author_soup.find('img',itemprop="image").get('src')
+
+
+def get_authors_book_list_data(author_soup:BeautifulSoup) -> dict:
     ''''''
-    shelved_count = NotImplementedError
-    books = {'shelved_count':shelved_count,'books':[]}
-    return 
+    books_url = get_authors_books_url(author_soup)
+    books_soup = get_soup(books_url)
+
+    books_data = {'shelved_count':get_shelved_books_count(books_soup),
+                  'author_image':get_author_image(author_soup),
+                  'books':get_author_books(books_soup)}
+    return books_data
+
 
 def get_author_data(author_url:str) -> dict:
     '''Scrapes average_rating, rating_count and review_count
@@ -71,28 +146,18 @@ def get_author_data(author_url:str) -> dict:
     author_name = get_author_name(author_soup)
     aggregate_data = get_author_aggregate_data(author_soup)
 
+    books_data = get_authors_book_list_data(author_soup)
+
     author_data = {
         'author_name':author_name,
-        'author_page':author_url
+        'author_url':author_url
     }
     author_data.update(aggregate_data)
+    author_data.update(books_data)
     return author_data
-
-def get_author_image():
-    pass
-
-def get_book_image():
-    pass
-
-def get_book_list_data():
-    pass
-
-
 
 
 if __name__ == '__main__':
-    url = 'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true'
-    suzanne_soup = get_soup(
-        'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true'
-        )
-    print(get_author_data(url))
+    author_url = 'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true'
+
+    print(get_author_data(author_url))

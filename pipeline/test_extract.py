@@ -23,3 +23,6 @@ def test_get_authors_books_from_parameters_url():
 
 def test_get_url_200_response_type():
     pass
+
+def test_no_year_published():
+    pass

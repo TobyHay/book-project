@@ -1,0 +1,39 @@
+name: Automated Testing
+on: 
+  push:
+    branches:
+    - '**'
+
+  pull_request:
+    branches:
+    - main
+
+
+jobs:     
+  install-python:
+        name: installs python and runs pytest on all directories
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+
+        - name: installs python
+          uses: actions/setup-python@v5
+
+        - run: | 
+            echo Checking python version running... 
+            python3 --version
+            
+        - run: |
+            echo installing dependencies...
+            bash ${GITHUB_WORKSPACE}/scripts/installing_dependencies.sh
+            pip install pytest
+
+        - run: |
+            echo running pytest on the all folders...
+            bash ${GITHUB_WORKSPACE}/scripts/test_directories.sh
+        env:
+            DB_USERNAME: ${{secrets.DB_USERNAME}}
+            DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+            DB_PORT: ${{secrets.DB_PORT}}
+            DB_NAME: ${{secrets.DB_NAME}}
+            DB_HOST: ${{secrets.DB_HOST}}

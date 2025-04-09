@@ -1,12 +1,3 @@
-variable "AWS_ACCESS_KEY_ID" {
-  type = string
-  description = "My AWS Access Key"
-}
-variable "AWS_SECRET_ACCESS_KEY" {
-  type = string
-  description = "My AWS Secret Access Key"
-}
-
 variable "DB_USERNAME" {
     type = string
     description = "database username"

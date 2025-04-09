@@ -28,7 +28,7 @@ terraform/ - contains code for storage infrastructure
 
     * allows for the image uri's to be returned to the terminal when performing step 1 above
 
-Please setup a third file, terraform.tfvars, that specifies environmental variables and follows this format:
+Please setup a third file, `terraform.tfvars`, that specifies environmental variables and follows this format:
 
 ```
 DB_USERNAME=<your_database_username>
@@ -39,6 +39,8 @@ DB_HOST=<your_database_address>
 FROM_EMAIL=<your_email_address>
 TO_EMAIL=<the_email_address_to_send_an_email_to>
 ```
+
+This configuration assumes that AWS CLI has been set up and so AWS keys are not required within the `terraform.tfvars`. If you haven't set up the AWS CLI, you can follow up to step 3 from this [article](https://medium.com/@simonazhangzy/installing-and-configuring-the-aws-cli-7d33796e4a7c) to help you.
 
 
 ## Get started
@@ -66,18 +68,18 @@ add_ecr/ - Contains code for setting up the lambda Docker image
 
 This is an example folder for deploying a lambda script to AWS ECR. Two folders should be created that follow the same structure for both ECR repositories, containing:
 
-* Dockerfile - which includes the commands required to convert the lambda function script into a Docker image
+* `Dockerfile` - which includes the commands required to convert the lambda function script into a Docker image
 
-* test_ecr.py - which is the lambda script to be converted into a Docker image.
+* `placeholder_image_for_ecr.py` - which is the lambda script to be converted into a Docker image.
 
 
 ## Get started
 
 To set up the ECR repository with the lambda Docker image, carry out the following steps after carrying out steps 1 and 2 from the terraform section:
 
-1. Replace the `test_ecr.py` placeholder script with your lambda script
+1. Replace the `placeholder_image_for_ecr.py` placeholder script with your lambda script
 
-2. Replace `test_ecr` in the `Dockerfile` on line 5 and 9 with the name of your script.
+2. Replace `placeholder_image_for_ecr` in the `Dockerfile` on line 5 and 9 with the name of your script.
 
 3. Follow the steps on [here](https://docs.aws.amazon.com/lambda/latest/dg/python-image.html#python-image-instructions) to dockerise the python script.
 

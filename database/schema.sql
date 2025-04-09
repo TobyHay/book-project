@@ -1,30 +1,32 @@
+DROP TABLE IF EXISTS author_assignment, author_measurement, book_measurement, book, author, publisher;
 
-CREATE TABLE "user" (
-    user_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_email VARCHAR NOT NULL,
-    username VARCHAR,
+CREATE TABLE publisher (
+    publisher_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    publisher_email VARCHAR NOT NULL,
+    publisher_name VARCHAR,
     date_subscribed TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE author (
     author_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR NOT NULL,
-    author_url VARCHAR NOT NULL
+    author_url VARCHAR NOT NULL,
+    author_image_url VARCHAR
 );
 
 CREATE TABLE author_assignment (
     author_assignment_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     author_id INT NOT NULL,
-    user_id INT NOT NULL,
+    publisher_id INT NOT NULL,
     CONSTRAINT fk_author_id FOREIGN KEY (author_id) REFERENCES author (author_id),
-    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES user (user_id)
+    CONSTRAINT fk_publisher_id FOREIGN KEY (publisher_id) REFERENCES publisher (publisher_id)
 );
 
 CREATE TABLE author_measurement (
     author_measurement_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     rating_count INT,
     average_rating FLOAT,
-    date_recorded DATETIME DEFAULT CURRENT_TIMESTAMP,
+    date_recorded TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     author_id INT NOT NULL,
     shelved_count INT,
     review_count INT,
@@ -35,9 +37,11 @@ CREATE TABLE author_measurement (
 CREATE TABLE book (
     book_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     author_id INT NOT NULL,
-    title VARCHAR NOT NULL,
-    release_date DATE,
-    image_url VARCHAR,
+    book_title VARCHAR NOT NULL,
+    year_published DATE,
+    big_image_url VARCHAR,
+    small_image_url VARCHAR,
+    book_url_path VARCHAR NOT NULL,
     CONSTRAINT fk_author_id FOREIGN KEY (author_id) REFERENCES author (author_id)
 );
 

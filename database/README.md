@@ -23,3 +23,10 @@ AWS_SECRET_ACCESS_KEY=<your_personal_secret_access_key>
 DB_USERNAME=<your_database_username>
 DB_PASSWORD=<your_database_password>
 ```
+
+# Schema
+The schema populates the database with tables once it has been created by the Terraform script.
+Please run `psql -h c16-books-db.c57vkec7dkkx.eu-west-2.rds.amazonaws.com -U books_project -d booksdb`, followed 
+by the password when prompted, to run the schema.
+We have carefully specified column datatypes to meet the minimum requirements of our database. This allows it to run as 
+efficiently as possible without sacrificing functionality. 

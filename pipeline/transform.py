@@ -39,9 +39,13 @@ def validate_author(author: dict) -> dict:
         author['author_url'] = is_valid_url(author['author_url'])
         author['author_image'] = is_valid_image_url(author['author_image'])
 
+        for key, value in author.items():
+            if value is None:
+                raise Exception(f"Missing value for '{key}'")
+
         return author
     except Exception as e:
-        print(f"Invalid Author: {e}")
+        print(f"Invalid Author {author['author_name']}: {e}")
         return None
 
 
@@ -59,7 +63,7 @@ def validate_book(book: dict) -> dict:
 
         return book
     except Exception as e:
-        print(f"Invalid Book: {e}")
+        print(f"Invalid Book {book['book_title']}: {e}")
         return None
 
 
@@ -68,12 +72,16 @@ def is_valid_author_name(name):
 
 
 def is_valid_book_title(title):
+    invalid_words = ("box set", "boxset", "book set")
     if not isinstance(title, str):
         raise Exception("Book title is not a valid string")
+
+    for word in invalid_words:
+        if word in title.lower():
+            raise Exception("Book title is a collection, not an individual")
     return title
 
 
-# TODO: Numbers can't be 0 or negative
 def is_valid_int(value: str) -> int:
     # Checks if the number has commas and if they are placed correctly
     str_value = str(value)
@@ -120,8 +128,11 @@ def is_valid_float(value: str) -> float:
 
 
 def is_valid_year(year: str) -> int:
-    yeat_str = str(year)
-    if len(yeat_str) != 4:
+    year_str = str(year)
+    if not year_str.isnumeric():
+        raise Exception("Invalid year (not a valid int)")
+
+    if len(year_str) != 4:
         raise Exception("Invalid year (must be 4 digits)")
     return is_valid_int(year)
 
@@ -176,7 +187,7 @@ if __name__ == "__main__":
             }]
     }]
 
-    cleaned_authors = clean_authors_info(author_data)
+    cleaned_authors = clean_authors_info([author_data])
 
     for author in cleaned_authors:
         for info in author:

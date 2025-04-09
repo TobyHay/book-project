@@ -9,7 +9,7 @@ CREATE TABLE publisher (
 
 CREATE TABLE author (
     author_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name VARCHAR NOT NULL,
+    author_name VARCHAR NOT NULL,
     author_url VARCHAR NOT NULL,
     author_image_url VARCHAR
 );
@@ -17,7 +17,7 @@ CREATE TABLE author (
 CREATE TABLE author_assignment (
     author_assignment_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     author_id INT NOT NULL,
-    publisher_id INT NOT NULL,
+    publisher_id SMALLINT NOT NULL,
     CONSTRAINT fk_author_id FOREIGN KEY (author_id) REFERENCES author (author_id),
     CONSTRAINT fk_publisher_id FOREIGN KEY (publisher_id) REFERENCES publisher (publisher_id)
 );
@@ -38,7 +38,7 @@ CREATE TABLE book (
     book_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     author_id INT NOT NULL,
     book_title VARCHAR NOT NULL,
-    year_published DATE,
+    year_published SMALLINT,
     big_image_url VARCHAR,
     small_image_url VARCHAR,
     book_url_path VARCHAR NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE book_measurement (
     average_rating FLOAT,
     date_recorded TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     book_id INT,
-    price FLOAT,
+    book_price FLOAT,
     review_count INT,
     CONSTRAINT fk_book_id FOREIGN KEY (book_id) REFERENCES book (book_id)
 );

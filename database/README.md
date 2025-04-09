@@ -22,6 +22,7 @@ The Terraform files can be run using `terraform init` followed by `terraform app
         - Creates security group
         - Specifies Postgres ingress-egress rules
         - Returns the database address in the terminal once `terraform apply` has finished running.
+        - returns`<db_ip_address>` in the terminal. 
 
     - `variables.tf`
         - allows for environmental variables to be passed into the main file (from the user-created file `terraform.tfvars`).
@@ -29,7 +30,7 @@ The Terraform files can be run using `terraform init` followed by `terraform app
 
 # Schema
 The schema populates the database with tables once it has been created by the Terraform script.
-Please run `psql -h c16-books-db.c57vkec7dkkx.eu-west-2.rds.amazonaws.com -U books_project -d booksdb`, followed 
+Please run `psql -h <db_ip_address> -U books_project -d booksdb`, followed 
 by the database password when prompted, to run the schema.
 We have carefully specified column datatypes to meet the minimum requirements of our database. This allows it to run as 
 efficiently as possible without sacrificing functionality. 

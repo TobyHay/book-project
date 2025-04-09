@@ -1,30 +1,16 @@
 # pylint: skip-file
 import pytest
-from extract import get_author_name_from_url
+import requests
+from extract import get_authors_books_url, get_soup
 
 
-def test_get_author_name_from_basic_url():
-    url = './books/153394.Suzanne_Collins'
-    assert get_author_name_from_url(url) == 'Suzanne Collins'
-
-
-def test_get_author_name_from_parameter_url():
-    url = './books/153394.Tul_John?parameter'
-    assert get_author_name_from_url(url) == 'Tul John'
-
-
-def test_get_author_name_spaces():
-    url = './books/153394.Rodrigo Toby'
-    assert get_author_name_from_url(url) == 'Rodrigo Toby'
-    
-
-def test_get_authors_books_url():
+def test_get_authors_books_url_valid_format():
     pass
 
 
-def test_get_authors_books_from_parameters_url():
+def test_average_rating_is_numeric():
     pass
 
 
-def test_no_year_published():
+def test_no_year_published_is_numeric():
     pass

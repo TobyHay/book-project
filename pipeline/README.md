@@ -38,4 +38,6 @@ This module focuses on extracting author information and contains the following 
 
 # Miscellaneous 
 
-- `test_html_generator.py`
+- `test_html_generator.py`: 
+-  Note: Do not use this!!
+-  This is used to generate the mock htmls for testing and generating them again could cause the values to change, making the tests obsolete.

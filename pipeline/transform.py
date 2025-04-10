@@ -29,10 +29,10 @@ def clean_authors_info(authors: list[dict]) -> list[dict]:
 def validate_author(author: dict) -> dict:
     '''Validates the values of an author dictionary and returns the cleaned author data'''
     expected_keys = 9
-    if len(author) != expected_keys:
-        raise ValueError(f"Unexpected number of keys: {len(author)}")
-
     try:
+        if len(author) != expected_keys:
+            raise ValueError(f"Unexpected number of keys: {len(author)}")
+
         author['author_name'] = is_valid_author_name(author['author_name'])
 
         # Drop 0 ratings / Drop average rating 0 - What about new authors?
@@ -68,6 +68,7 @@ def validate_book(book: dict) -> dict:
         book['review_count'] = is_valid_int(book['review_count'])
         book['rating_count'] = is_valid_int(book['rating_count'])
 
+        book['book_url'] = is_valid_url(book['book_url'])
         book['big_image_url'] = is_valid_image_url(book['big_image_url'])
         book['small_image_url'] = is_valid_image_url(book['small_image_url'])
 
@@ -98,10 +99,8 @@ def is_valid_book_title(title):
 
 def is_valid_int(value: str) -> int:
     '''
-    Checks the provided string can be converted into a valid integer
-    And checks the number is not negative
-    This removes any commas from the string, 
-    as long as they follow the standard structure for numbers
+    Checks the provided string can be converted into a valid integer and checks the number is not negative
+    This removes any commas from the string, as long as they follow the standard structure for numbers
     '''
     # Checks if the number has commas and if they are placed correctly
     str_value = str(value)
@@ -187,38 +186,24 @@ def is_valid_image_url(image_url):
 
 
 if __name__ == "__main__":
+    example_author_data = {'author_name': 'Suzanne Collins',
+                           'author_url': 'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true',
+                           'average_rating': '4.28',
+                           'rating_count': '18,627,481',
+                           'review_count': '720,399',
+                           'goodreads_followers': '112,797',
+                           'shelved_count': '26,364,555',
+                           'author_image': 'https://images.gr-assets.com/authors/1630199330p5/153394.jpg',
+                           'books': [
+                               {'book_title': 'The Hunger Games (The Hunger Games, #1)', 'book_url': 'https://www.goodreads.com/book/show/2767052-the-hunger-games', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg',
+                                'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg', 'review_count': '238,133', 'year_published': '2008', 'average_rating': ' 4.34', 'rating_count': '9,369,399'},
+                               {'book_title': 'Catching Fire (The Hunger Games, #2)', 'book_url': 'https://www.goodreads.com/book/show/6148028-catching-fire', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028.jpg',
+                                'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028._SY75_.jpg', 'review_count': '136,824', 'year_published': '2009', 'average_rating': ' 4.34', 'rating_count': '3,884,823'},
+                               {'book_title': 'Mockingjay (The Hunger Games, #3)', 'book_url': 'https://www.goodreads.com/book/show/7260188-mockingjay', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722918i/7260188.jpg',
+                                'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722918i/7260188._SY75_.jpg', 'review_count': '140,877', 'year_published': '2010', 'average_rating': ' 4.10', 'rating_count': '3,483,487'}
+                           ]}
 
-    example_author_data = [{
-        "author_name": "Suzanne Collins",
-        "author_url": "https://www.goodreads.com/author/show/...",
-        "average_rating": "4.28",
-        "rating_count": "18,603497",
-        "review_count": "716574",
-        "goodreads_followers": "112666",
-        "shelved_count": "26364555",
-        "author_image": "https://images.gr-assets.com/authors/...jpg",
-        "books": [
-            {
-                "book_title": "The Hunger Games (The Hunger Games, #1)",
-                "big_image_url": "https://images-na.ssl-images-amazon.com...jpg",
-                "small_image_url": "https://images-na.ssl-images-amazon.com...jpg",
-                "review_count": "237,766",
-                "year_published": "2008",
-                "average_rating": "4.34",
-                "rating_count": "9365720"
-            },
-            {
-                "book_title": "Catching Fire (The Hunger Games, #2)",
-                "big_image_url": "https://images-na.ssl-images-amazon.com...jpg",
-                "small_image_url": "https://images-na.ssl-images-amazon.com...jpg",
-                "review_count": "136,598",
-                "year_published": "2009",
-                "average_rating": "4.34",
-                "rating_count": "3882544"
-            }]
-    }]
-
-    cleaned_authors = clean_authors_info(example_author_data)
+    cleaned_authors = clean_authors_info([example_author_data])
 
     for cleaned_author in cleaned_authors:
         for info in cleaned_author:

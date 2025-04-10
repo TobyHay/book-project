@@ -4,6 +4,7 @@ Contains sub-folders:
 
 * terraform/
 * add_ecr/
+* email_script/
 
 # Terraform
 

@@ -6,6 +6,18 @@ terraform/main.tf using step 1
 This should be replaced with the python script you want to
 upload to one of the lambda functions
 """
+from dotenv import load_dotenv
+import psycopg2
+
+def get_db_connection() ->psycopg2.connection:
+    load_dotenv()
+    return psycopg2.connect(
+        database=,
+        user=,
+        host=,
+        password=,
+        port=
+    )
 
 
 def handler():

@@ -4,8 +4,6 @@ from bs4 import BeautifulSoup
 from unittest.mock import patch
 import extract
 
-'''Tests '' retrieves the correct content from a mock soup of _'''
-
 
 @pytest.fixture
 def mock_book_page_soup():

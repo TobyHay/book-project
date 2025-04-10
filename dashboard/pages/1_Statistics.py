@@ -26,12 +26,15 @@ def connect_to_database() -> psycopg2.connect:
 
 def get_all_data(connection: psycopg2.connect) -> pd.DataFrame:
     '''Queries the database, returns and merges tables'''
-    full_data = pd.read_sql("""
-                          SELECT * FROM author AS au
-                          JOIN author_measurement AS am ON au.author_id = am.author_id
-                          JOIN book AS b ON au.author_id = b.author_id
-                          JOIN book_measurement AS bm ON b.book_id = bm.book_id
-                          ORDER BY au.author_id;""", connection)
+    query = """
+    SELECT * FROM author AS au
+    JOIN author_measurement AS am ON au.author_id = am.author_id
+    JOIN book AS b ON au.author_id = b.author_id
+    JOIN book_measurement AS bm ON b.book_id = bm.book_id
+    ORDER BY au.;"""
+
+    query = """SELECT * FROM author"""
+    full_data = pd.read_sql(query, connection)
     return full_data
 
 
@@ -164,3 +167,6 @@ if __name__ == "__main__":
 
         plot_bar_books_per_author()
         # TODO Too many authors, may clutter graph (what about top 10?)
+
+    data = get_all_data(connection)
+    st.write(data)

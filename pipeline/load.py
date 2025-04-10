@@ -17,7 +17,7 @@ COLUMN_NAMES_IN_TABLES = {
     'book': ["author_id", "book_title", 'year_published',
              "small_image_url",
              "big_image_url", "book_url_path"],
-    'author': ['author_name', 'author_url', 'author_image_url'],
+    'author': ['author_name', 'author_url'],
     'author_measurement': ["rating_count", "average_rating",
                            "author_id", "shelved_count",
                            "review_count"],
@@ -64,7 +64,7 @@ def get_database_authors(conn: psycopg2.connect) -> list[dict]:
     return authors_df.to_dict(orient='records')
 
 
-def get_database_books(author_id_for_books: int, conn: psycopg2.connect) -> list[dict]:
+def get_database_books_by_author(author_id_for_books: int, conn: psycopg2.connect) -> list[dict]:
     """Queries the database for all books
     returns list of dict of all books in database"""
 
@@ -77,10 +77,10 @@ def get_database_books(author_id_for_books: int, conn: psycopg2.connect) -> list
 
 
 def get_new_authors_or_books(new_values: list[dict],
-                             db_values: list[dict]) -> list[dict]:
+                             database_values: list[dict]) -> list[dict]:
     """Filters either the author or books by the values already present in the database"""
     return [author for author in new_values
-            if author not in db_values]
+            if author not in database_values]
 
 
 def format_values_to_upload(values_to_format: list[dict],
@@ -102,7 +102,6 @@ def get_values_to_upload(cleaned_data: list[dict], table_name: str,
 
     if len(values_to_upload) == 0:
         print(f'No {table_name} values to upload to database.')
-        return values_to_upload
     return values_to_upload
 
 
@@ -179,7 +178,7 @@ def load_book_or_author_data_into_table(cleaned_data: list[dict], table_name: st
     if table_name == 'author':
         db_values = get_database_authors(conn)
     elif table_name == 'book':
-        db_values = get_database_books(author_id, conn)
+        db_values = get_database_books_by_author(author_id, conn)
     else:
         raise ValueError("Invalid table given here.")
 

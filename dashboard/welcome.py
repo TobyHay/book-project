@@ -67,6 +67,7 @@ def streamlit(conn):
     st.write("Welcome to the Publisher Dashboard! On this page, you'll be able to request authors to be tracked and submit email report preferences.")
     st.write("On the next page, summary statistics for some of our most popular authors can be seen. Use our interactive features to learn about your favourite author!")
     col1, col2, col3 = st.columns(3)
+    # Need to replace each of these w the date_added from author and book... avoids joining and saves time
     with col1:
         books = len(pd.read_sql("SELECT * FROM book;", conn))
         books_since_yesterday = len(pd.read_sql(
@@ -89,10 +90,12 @@ def streamlit(conn):
     st.write("Request your favourite book or author to be added to our database! Authors or books added will be included in our summary statistics on the next page.")
 
     with st.form("Author request form"):
-        st.write("Please paste your chosen author's URL from GoodReads.com, in the following format: https://www.goodreads.com/author/show/153394.Suzanne_Collins. Please note that this page must be the overall author page; .../author/show/... should be in the URL.")
+        st.write("Please paste your chosen author's URL from GoodReads.com, in the following format: https://www.goodreads.com/author/show/153394.Suzanne_Collins Please note that this page must be the overall author page; .../author/show/... should be in the URL.")
         new_author_url = st.text_input("Paste an author's URL here:")
         st.form_submit_button('Add this author to the database')
-        author_name = {" ".join(new_author_url.split(".")[-1].split("_"))}
+        author_name = " ".join(new_author_url.split(".")[-1].split("_"))
+        if not author_name:
+            author_name = "Unknown Author"
         st.write(
             f":hourglass_flowing_sand: Adding {author_name} to the author database...")
         if validate_author_url(new_author_url) == True:
@@ -100,11 +103,12 @@ def streamlit(conn):
                 ":hourglass: Loading the author's most up-to-date information...")
             try:
                 pipeline(new_author_url, conn)
+                st.write(
+                    f":white_check_mark: Information loaded - head over to the visualisations page for in-depth analysis of {author_name}'s work!")
+# Could make a hyperlink to take to vis page?
             except Exception as e:
                 st.write(
-                    ":x: Something went wrong - please try again, or contact the devs.")
-            st.write(
-                f":white_check_mark: Information loaded - head over to the visualisations page for in-depth analysis of {author_name}'s work!")
+                    ":x: Something went wrong when getting author's information - please try again, or contact the devs.")
 
             # Check if author already in DB
             # Check if GoodReads.com/URL requests.gets a valid 200 response. Otherwise, print ("Cannot find author with that URL. Double check or try another.")

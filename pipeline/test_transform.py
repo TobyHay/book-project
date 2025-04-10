@@ -14,7 +14,7 @@ from transform import (is_valid_author_name,
 
 PERFECTLY_FORMATTED_BOOK = {
     "book_title": "Catching Fire",
-    'book_url': 'https://www.goodreads.com/book/show/6148028-catching-fire',
+    'book_url_path': 'https://www.goodreads.com/book/show/6148028-catching-fire',
     "big_image_url": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028.jpg",
     "small_image_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028._SY75_.jpg",
     "review_count": 136598,
@@ -38,7 +38,7 @@ PERFECTLY_FORMATTED_AUTHOR = {
 
 VALID_BOOK_1 = {
     "book_title": "The Hunger Games (The Hunger Games, #1)",
-    'book_url': 'https://www.goodreads.com/book/show/2767052-the-hunger-games',
+    'book_url_path': 'https://www.goodreads.com/book/show/2767052-the-hunger-games',
     "big_image_url": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg",
     "small_image_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg",
     "review_count": "237,766",

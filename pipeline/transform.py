@@ -68,7 +68,7 @@ def validate_book(book: dict) -> dict:
         book['review_count'] = is_valid_int(book['review_count'])
         book['rating_count'] = is_valid_int(book['rating_count'])
 
-        book['book_url'] = is_valid_url(book['book_url'])
+        book['book_url_path'] = is_valid_url(book['book_url_path'])
         book['big_image_url'] = is_valid_image_url(book['big_image_url'])
         book['small_image_url'] = is_valid_image_url(book['small_image_url'])
 
@@ -195,11 +195,11 @@ if __name__ == "__main__":
                            'shelved_count': '26,364,555',
                            'author_image': 'https://images.gr-assets.com/authors/1630199330p5/153394.jpg',
                            'books': [
-                               {'book_title': 'The Hunger Games (The Hunger Games, #1)', 'book_url': 'https://www.goodreads.com/book/show/2767052-the-hunger-games', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg',
+                               {'book_title': 'The Hunger Games (The Hunger Games, #1)', 'book_url_path': 'https://www.goodreads.com/book/show/2767052-the-hunger-games', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg',
                                 'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg', 'review_count': '238,133', 'year_published': '2008', 'average_rating': ' 4.34', 'rating_count': '9,369,399'},
-                               {'book_title': 'Catching Fire (The Hunger Games, #2)', 'book_url': 'https://www.goodreads.com/book/show/6148028-catching-fire', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028.jpg',
+                               {'book_title': 'Catching Fire (The Hunger Games, #2)', 'book_url_path': 'https://www.goodreads.com/book/show/6148028-catching-fire', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028.jpg',
                                 'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028._SY75_.jpg', 'review_count': '136,824', 'year_published': '2009', 'average_rating': ' 4.34', 'rating_count': '3,884,823'},
-                               {'book_title': 'Mockingjay (The Hunger Games, #3)', 'book_url': 'https://www.goodreads.com/book/show/7260188-mockingjay', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722918i/7260188.jpg',
+                               {'book_title': 'Mockingjay (The Hunger Games, #3)', 'book_url_path': 'https://www.goodreads.com/book/show/7260188-mockingjay', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722918i/7260188.jpg',
                                 'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722918i/7260188._SY75_.jpg', 'review_count': '140,877', 'year_published': '2010', 'average_rating': ' 4.10', 'rating_count': '3,483,487'}
                            ]}
 

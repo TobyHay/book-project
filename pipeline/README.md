@@ -33,3 +33,9 @@ This module focuses on extracting author information and contains the following 
 # Usage
 
 - SUBJECT TO CHANGE WHEN COORDINATING THE ETL STAGES
+
+
+
+# Miscellaneous 
+
+- `test_html_generator.py`

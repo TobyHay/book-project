@@ -53,16 +53,16 @@ def get_author_aggregate_data(author_soup: BeautifulSoup) -> dict:
     }
 
 
-def get_book_small_image_url(book_soup: BeautifulSoup) -> str:
+def get_book_small_image_url(book_container_soup: BeautifulSoup) -> str:
     '''Gets the url from the soup of an individual 
     book container from the author's book list '''
-    return book_soup.find('img').get('src')
+    return book_container_soup.find('img', class_='bookCover').get('src')
 
 
-def get_book_title(book_soup: BeautifulSoup) -> str:
+def get_book_title(book_container_soup: BeautifulSoup) -> str:
     '''Gets the book title from the soup of an individual 
     book container from the author's book list '''
-    return book_soup.find('span', itemprop="name").text
+    return book_container_soup.find('span', itemprop="name").text
 
 
 def slice_book_average_rating(aggregate_text: str) -> str:
@@ -80,10 +80,10 @@ def slice_book_rating_count(aggregate_text: str) -> str:
     return aggregate_text[start_slice_index:end_slice_index]
 
 
-def get_book_aggregate_data(book_soup: BeautifulSoup) -> dict:
+def get_book_aggregate_data(book_container_soup: BeautifulSoup) -> dict:
     '''Given a book card's html in the goodreads author's book list,
       scrape all aggregate data for the given book'''
-    average_book_rating_and_rating_count = book_soup.find(
+    average_book_rating_and_rating_count = book_container_soup.find(
         'span', class_='minirating').text
     return {
         'average_rating': slice_book_average_rating(average_book_rating_and_rating_count),
@@ -91,15 +91,17 @@ def get_book_aggregate_data(book_soup: BeautifulSoup) -> dict:
     }
 
 
-def get_year_published(book_soup: BeautifulSoup) -> dict:
-    '''gets year published from a '''
-    year_published = book_soup.find(
+def get_year_published(book_container_soup: BeautifulSoup) -> dict:
+    '''gets year published from a html container 
+    for a book from the book list html'''
+    year_published = book_container_soup.find(
         'span', class_='greyText smallText uitext').text
     return year_published.split()[-4]  # magic number
 
 
 def get_book_isbn(book_soup: BeautifulSoup) -> str:
     ''''''
+    raise NotImplementedError
 
 
 def get_individual_book_data(book_container_soup: BeautifulSoup) -> dict:
@@ -107,7 +109,7 @@ def get_individual_book_data(book_container_soup: BeautifulSoup) -> dict:
     book list page and the book's individual page.'''
     book_url = get_book_url(book_container_soup)
     book_page_soup = get_soup(book_url)
-
+    print('this passed 1')
     book_data = {
         'book_title': get_book_title(book_container_soup),
         'book_url': book_url,
@@ -121,7 +123,7 @@ def get_individual_book_data(book_container_soup: BeautifulSoup) -> dict:
     return book_data
 
 
-def get_author_books(books_list_soup: BeautifulSoup) -> list[dict]:
+def get_authors_books(books_list_soup: BeautifulSoup) -> list[dict]:
     '''gets a list of all books in a author's goodreads book list'''
     scraped_books = books_list_soup.find_all("tr")
     formatted_books = []
@@ -143,13 +145,14 @@ def get_author_image(author_soup: BeautifulSoup) -> dict:
 
 
 def get_authors_books_measurement_data(author_soup: BeautifulSoup) -> dict:
-    '''AAAA'''  # COMMENT HERE
+    '''Gets data from the author's book list page, including book information,
+    shelved books count and the author's image.'''
     books_url = get_authors_books_url(author_soup)
     books_soup = get_soup(books_url)
 
     books_data = {'shelved_count': get_shelved_books_count(books_soup),
                   'author_image': get_author_image(author_soup),
-                  'books': get_author_books(books_soup)}
+                  'books': get_authors_books(books_soup)}
     return books_data
 
 
@@ -192,6 +195,11 @@ def get_book_review_count(book_url_soup: BeautifulSoup) -> str:
 if __name__ == '__main__':
     author_url = 'https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true'
 
-    start_time = time.time()
-    print(get_author_data(author_url))
-    print('time:', time.time()-start_time)
+    with open('test_book_page.html', 'r', encoding="utf-8") as f:
+        html = f.read()
+        soup = BeautifulSoup(html, "lxml")
+    print(get_book_small_image_url(soup))
+
+    # start_time = time.time()
+    # print(get_author_data(author_url))
+    # print('time:', time.time()-start_time)

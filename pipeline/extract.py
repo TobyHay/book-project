@@ -98,6 +98,10 @@ def get_year_published(book_soup: BeautifulSoup) -> dict:
     return year_published.split()[-4]  # magic number
 
 
+def get_book_isbn(book_soup: BeautifulSoup) -> str:
+    ''''''
+
+
 def get_individual_book_data(book_container_soup: BeautifulSoup) -> dict:
     '''Gets information about an individual book from its container in the authors
     book list page and the book's individual page.'''

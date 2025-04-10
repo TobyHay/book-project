@@ -17,7 +17,7 @@ COLUMN_NAMES_IN_TABLES = {
     'book': ["author_id", "book_title", 'year_published',
              "small_image_url",
              "big_image_url", "book_url_path"],
-    'author': ['author_name', 'author_url'],
+    'author': ['author_name', 'author_url', 'author_image_url'],
     'author_measurement': ["rating_count", "average_rating",
                            "author_id", "shelved_count",
                            "review_count"],

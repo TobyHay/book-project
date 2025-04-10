@@ -1,15 +1,16 @@
 # pylint: skip-file
 import pytest
+import logging
 from copy import deepcopy
-from transform import (is_valid_author_name,
-                       is_valid_book_title,
-                       is_valid_int,
+from transform import (is_valid_int,
                        is_valid_float,
                        is_valid_year,
                        is_valid_url,
                        validate_author,
                        validate_book,
                        clean_authors_info)
+
+log = logging.getLogger()
 
 
 PERFECTLY_FORMATTED_BOOK = {
@@ -49,7 +50,7 @@ VALID_BOOK_1 = {
 
 VALID_BOOK_2 = {
     "book_title": "Catching Fire (The Hunger Games, #2)",
-    'book_url': 'https://www.goodreads.com/book/show/6148028-catching-fire',
+    'book_url_path': 'https://www.goodreads.com/book/show/6148028-catching-fire',
     "big_image_url": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028.jpg",
     "small_image_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028._SY75_.jpg",
     "review_count": "136,598",
@@ -139,38 +140,38 @@ def test_invalid_url(invalid_url):
 # Test Book Cleaning
 def test_perfectly_formatted_book():
     book_copy = deepcopy(PERFECTLY_FORMATTED_BOOK)
-    assert validate_book(book_copy) == PERFECTLY_FORMATTED_BOOK
+    assert validate_book(book_copy, log) == PERFECTLY_FORMATTED_BOOK
 
 
 def test_valid_book():
     book_copy = deepcopy(VALID_BOOK_1)
-    assert validate_book(book_copy) is not None
+    assert validate_book(book_copy, log) is not None
 
 
 def test_invalid_book():
     book_copy = deepcopy(VALID_BOOK_1)
     book_copy['review_count'] = None
-    assert validate_book(book_copy) is None
+    assert validate_book(book_copy, log) is None
 
 
 # Test Author Cleaning
 def test_perfectly_formatted_author():
     author_copy = deepcopy(PERFECTLY_FORMATTED_AUTHOR)
-    assert validate_author(author_copy) == PERFECTLY_FORMATTED_AUTHOR
+    assert validate_author(author_copy, log) == PERFECTLY_FORMATTED_AUTHOR
 
 
 def test_valid_author():
     author_copy = deepcopy(VALID_AUTHOR_DATA)
-    assert validate_author(author_copy) is not None
+    assert validate_author(author_copy, log) is not None
 
 
 def test_invalid_author():
     author_copy = deepcopy(VALID_AUTHOR_DATA)
     author_copy['review_count'] = None
-    assert validate_author(author_copy) is None
+    assert validate_author(author_copy, log) is None
 
 
 # Test Main Function
 def test_clean_authors():
     author_copy = deepcopy(VALID_AUTHOR_DATA)
-    assert clean_authors_info([author_copy]) is not None
+    assert clean_authors_info([author_copy], log) is not None

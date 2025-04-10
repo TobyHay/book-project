@@ -3,22 +3,22 @@ and converting it into a valid format for loading into the database'''
 
 import logging
 
-log = logging.getLogger()
+EXPECTED_KEYS = 9
 
 
-def clean_authors_info(authors: list[dict]) -> list[dict]:
+def clean_authors_info(authors: list[dict], log: logging.Logger) -> list[dict]:
     '''Validates and filters each author and their books, returning only valid entries'''
     valid_authors_list = []
 
     for author in authors:
-        valid_author = validate_author(author)
+        valid_author = validate_author(author, log)
         if valid_author:
             valid_authors_list.append(valid_author)
 
             valid_books_list = []
 
             for book in author['books']:
-                valid_book = validate_book(book)
+                valid_book = validate_book(book, log)
                 if valid_book:
                     valid_books_list.append(valid_book)
 
@@ -26,15 +26,12 @@ def clean_authors_info(authors: list[dict]) -> list[dict]:
     return valid_authors_list
 
 
-def validate_author(author: dict) -> dict:
+def validate_author(author: dict, log: logging.Logger) -> dict:
     '''Validates the values of an author dictionary and returns the cleaned author data'''
-    expected_keys = 9
+
     try:
-        if len(author) != expected_keys:
+        if len(author) != EXPECTED_KEYS:
             raise ValueError(f"Unexpected number of keys: {len(author)}")
-
-        author['author_name'] = is_valid_author_name(author['author_name'])
-
         # Drop 0 ratings / Drop average rating 0 - What about new authors?
         author['average_rating'] = is_valid_rating(author['average_rating'])
         author['rating_count'] = is_valid_int(author['rating_count'])
@@ -52,12 +49,12 @@ def validate_author(author: dict) -> dict:
                 raise ValueError(f"Missing value for '{key}'")
 
         return author
-    except Exception as e:
+    except ValueError as e:
         log.error("Invalid Author %s: %s", author['author_name'], e)
         return None
 
 
-def validate_book(book: dict) -> dict:
+def validate_book(book: dict, log: logging.Logger) -> dict:
     '''Validates all values associated to keys in the given book dictionary'''
 
     try:
@@ -73,17 +70,12 @@ def validate_book(book: dict) -> dict:
         book['small_image_url'] = is_valid_image_url(book['small_image_url'])
 
         return book
-    except Exception as e:
+    except ValueError as e:
         log.error("Invalid Book %s: %s", book['book_title'], e)
         return None
 
 
-def is_valid_author_name(name):
-    '''Does absolutely nothing'''
-    return name
-
-
-def is_valid_book_title(title):
+def is_valid_book_title(title: str) -> str:
     '''Confirms the book title is a valid string
     and ensures that the book provided is not a collection of books'''
 
@@ -99,8 +91,11 @@ def is_valid_book_title(title):
 
 def is_valid_int(value: str) -> int:
     '''
-    Checks the provided string can be converted into a valid integer and checks the number is not negative
-    This removes any commas from the string, as long as they follow the standard structure for numbers
+    Checks the provided string can be converted into a valid integer
+    and checks the number is not negative
+
+    This removes any commas from the string,
+    as long as they follow the standard structure for numbers
     '''
     # Checks if the number has commas and if they are placed correctly
     str_value = str(value)
@@ -149,7 +144,11 @@ def is_valid_float(value: str) -> float:
 
 
 def is_valid_rating(rating: str) -> float:
+    '''Checks the rating is between 0 and 5'''
     number = is_valid_float(rating)
+
+    if number < 0:
+        raise ValueError("Invalid rating (can't be less than 0)")
 
     if number > 5:
         raise ValueError("Invalid rating (can't be greater than 5)")
@@ -167,7 +166,7 @@ def is_valid_year(year: str) -> int:
     return is_valid_int(year)
 
 
-def is_valid_url(url):
+def is_valid_url(url: str) -> str:
     '''Checks that the URL is a valid string and that the URL starts with http'''
     if not isinstance(url, str):
         raise ValueError("URL is not a valid string")
@@ -177,7 +176,7 @@ def is_valid_url(url):
     return url
 
 
-def is_valid_image_url(image_url):
+def is_valid_image_url(image_url: str) -> str:
     '''Checks that the image URL is valid and returns a .jpg'''
     is_valid_url(image_url)
     if not image_url.endswith(".jpg"):
@@ -203,7 +202,8 @@ if __name__ == "__main__":
                                 'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722918i/7260188._SY75_.jpg', 'review_count': '140,877', 'year_published': '2010', 'average_rating': ' 4.10', 'rating_count': '3,483,487'}
                            ]}
 
-    cleaned_authors = clean_authors_info([example_author_data])
+    log = logging.getLogger()
+    cleaned_authors = clean_authors_info([example_author_data], log)
 
     for cleaned_author in cleaned_authors:
         for info in cleaned_author:

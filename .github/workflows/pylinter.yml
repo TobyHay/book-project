@@ -1,0 +1,34 @@
+name: Automated Pylinting
+on: 
+  push:
+    branches:
+    - '**'
+
+  pull_request:
+    branches:
+    - main
+
+
+jobs:
+  lint-code:
+    name: lint the code
+    runs-on: ubuntu-latest
+    steps:
+    - name: check code
+      uses: actions/checkout@v4
+      
+    - name: installs python
+      uses: actions/setup-python@v5
+
+    - run: | 
+        echo Checking python version running... 
+        python3 --version
+    
+    - run: |
+        echo installing dependencies...
+        bash ${GITHUB_WORKSPACE}/scripts/installing_dependencies.sh
+        pip install pylint
+
+    - name: lint code
+      run: |
+          bash ${GITHUB_WORKSPACE}/scripts/pylint_directories.sh

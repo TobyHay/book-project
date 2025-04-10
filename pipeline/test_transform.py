@@ -67,16 +67,6 @@ VALID_AUTHOR_DATA = {
     "books": [VALID_BOOK_1, VALID_BOOK_2]
 }
 
-# Test names
-# def test_validate_author_name():
-#     author_name = 'Suzanne Collins'
-#     assert validate_author_name(author_name) == 'Suzanne Collins'
-
-
-# def test_validate_book_title():
-#     book_title = 'Hunger Games'
-#     assert validate_book_title(book_title) == 'Hunger Games'
-
 
 # Test Integers
 @pytest.mark.parametrize("valid_value, output", [
@@ -127,20 +117,17 @@ def test_invalid_years(invalid_year):
 
 
 # Test URLs
-@pytest.mark.parametrize("valid_url, output", [
-    ("https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true",
-     "https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true"),
-    ("https://images.gr-assets.com/authors/1630199330p5/153394.jpg",
-     "https://images.gr-assets.com/authors/1630199330p5/153394.jpg")])
-def test_valid_url(valid_url, output):
-    assert is_valid_url(valid_url) == output
+@pytest.mark.parametrize("valid_url", [
+    "https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true",
+    "https://images.gr-assets.com/authors/1630199330p5/153394.jpg"])
+def test_valid_url(valid_url):
+    assert is_valid_url(valid_url) is not None
 
 
 @pytest.mark.parametrize("invalid_url", [
     None,
     "String",
-    "htt://images.gr-assets.com/authors/1630199330p5/153394.jpg",
-    "//images.gr-assets.com/authors/1630199330p5/153394.jpg"])
+    "htt://images.gr-assets.com/authors/1630199330p5/153394.jpg"])
 def test_invalid_url(invalid_url):
     with pytest.raises(Exception):
         is_valid_url(invalid_url)

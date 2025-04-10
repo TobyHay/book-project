@@ -1,11 +1,13 @@
 '''This module explores cleaning and transforming the data received from extract.py
 and converting it into a valid format for loading into the database'''
 
-# Drop collections/bundles ?
-# Drop 0 ratings / Drop average rating 0 - What about new authors?
+import logging
+
+log = logging.getLogger()
 
 
 def clean_authors_info(authors: list[dict]) -> list[dict]:
+    '''Validates and filters each author and their books, returning only valid entries'''
     valid_authors_list = []
 
     for author in authors:
@@ -25,9 +27,15 @@ def clean_authors_info(authors: list[dict]) -> list[dict]:
 
 
 def validate_author(author: dict) -> dict:
+    '''Validates the values of an author dictionary and returns the cleaned author data'''
+    expected_keys = 9
+    if len(author) != expected_keys:
+        raise ValueError(f"Unexpected number of keys: {len(author)}")
+
     try:
         author['author_name'] = is_valid_author_name(author['author_name'])
 
+        # Drop 0 ratings / Drop average rating 0 - What about new authors?
         author['average_rating'] = is_valid_float(author['average_rating'])
         author['rating_count'] = is_valid_int(author['rating_count'])
         author['review_count'] = is_valid_int(author['review_count'])
@@ -41,15 +49,17 @@ def validate_author(author: dict) -> dict:
 
         for key, value in author.items():
             if value is None:
-                raise Exception(f"Missing value for '{key}'")
+                raise ValueError(f"Missing value for '{key}'")
 
         return author
     except Exception as e:
-        print(f"Invalid Author {author['author_name']}: {e}")
+        log.error("Invalid Author %s: %s", author['author_name'], e)
         return None
 
 
 def validate_book(book: dict) -> dict:
+    '''Validates all values associated to keys in the given book dictionary'''
+
     try:
         book['book_title'] = is_valid_book_title(book['book_title'])
         book['year_published'] = is_valid_year(book['year_published'])
@@ -63,95 +73,111 @@ def validate_book(book: dict) -> dict:
 
         return book
     except Exception as e:
-        print(f"Invalid Book {book['book_title']}: {e}")
+        log.error("Invalid Book %s: %s", book['book_title'], e)
         return None
 
 
 def is_valid_author_name(name):
+    '''Does absolutely nothing'''
     return name
 
 
 def is_valid_book_title(title):
+    '''Confirms the book title is a valid string
+    and ensures that the book provided is not a collection of books'''
+
     invalid_words = ("box set", "boxset", "book set")
     if not isinstance(title, str):
-        raise Exception("Book title is not a valid string")
+        raise ValueError("Book title is not a valid string")
 
     for word in invalid_words:
         if word in title.lower():
-            raise Exception("Book title is a collection, not an individual")
+            raise ValueError("Book title is a collection, not an individual")
     return title
 
 
 def is_valid_int(value: str) -> int:
+    '''
+    Checks the provided string can be converted into a valid integer
+    And checks the number is not negative
+    This removes any commas from the string, 
+    as long as they follow the standard structure for numbers
+    '''
     # Checks if the number has commas and if they are placed correctly
     str_value = str(value)
     if ',' in str_value:
         chunks = str_value.split(',')
 
         if not 1 <= len(chunks[0]) <= 3:
-            raise Exception(f"Invalid commas in number")
+            raise ValueError("Invalid commas in number")
 
         for chunk in chunks[1:]:
             if len(chunk) != 3:
-                raise Exception(f"Invalid commas in number: {chunk}")
+                raise ValueError(f"Invalid commas in number: {chunk}")
 
         str_value = ''.join(chunks)
 
-    # Checks the number is a valid number
     number = int(str_value)
-
-    # Checks the number is not negative
     if number < 0:
-        raise Exception(f"invalid number")
-
+        raise ValueError("Invalid number (number can't be negative)")
     return number
 
 
 def is_valid_float(value: str) -> float:
+    '''
+    Checks the provided string can be converted into a valid float
+    And checks the chunk of numbers to the left of the decimal is formatted as a valid integer
+    This returns a float rounded to 2dp
+    '''
     # Checks the decimal is placed correctly
     str_value = str(value)
     if '.' in str_value:
         chunks = str_value.split('.')
         if len(chunks) != 2:
-            raise Exception(f"Invalid decimal in float")
+            raise ValueError("Invalid decimal in float")
 
         if len(chunks[0]) == 0 or len(chunks[1]) == 0:
-            raise Exception(f"Missing number either side of decimal")
+            raise ValueError(
+                "Invalid float (missing number either side of decimal)")
 
         float_str = f"{str(is_valid_int(chunks[0]))}.{chunks[1]}"
 
     else:
-        raise Exception("Invalid float (missing decimal point)")
+        raise ValueError("Invalid float (missing decimal point)")
 
     # Checks the number is a valid float (and rounds to 2dp)
-    return round(float(float_str), 2)
+    number = round(float(float_str), 2)
+    if number < 5:
+        raise ValueError("Invalid rating (can't be greater than 5)")
+    return
 
 
 def is_valid_year(year: str) -> int:
+    '''Checks the year provided is a valid 4 digit number'''
     year_str = str(year)
     if not year_str.isnumeric():
-        raise Exception("Invalid year (not a valid int)")
+        raise ValueError("Invalid year (not a valid int)")
 
     if len(year_str) != 4:
-        raise Exception("Invalid year (must be 4 digits)")
+        raise ValueError("Invalid year (must be 4 digits)")
     return is_valid_int(year)
 
 
 def is_valid_url(url):
+    '''Checks that the URL is a valid string and that the URL starts with http'''
     if not isinstance(url, str):
-        raise Exception("URL is not a valid string")
+        raise ValueError("URL is not a valid string")
 
     if not url.startswith("http"):
-        raise Exception("Invalid URL")
+        raise ValueError("Invalid URL")
     return url
 
 
 def is_valid_image_url(image_url):
-    if not isinstance(image_url, str):
-        raise Exception("URL is not a valid string")
-
-    if not image_url.startswith("http"):
-        raise Exception("Invalid URL")
+    '''Checks that the image URL is valid and returns a .jpg'''
+    is_valid_url(image_url)
+    if not image_url.endswith(".jpg"):
+        raise ValueError("URL is not a jpg image")
     return image_url
 
 
@@ -159,18 +185,18 @@ if __name__ == "__main__":
 
     author_data = [{
         "author_name": "Suzanne Collins",
-        "author_url": "https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true",
+        "author_url": "https://www.goodreads.com/author/show/...",
         "average_rating": "4.28",
-        "rating_count": "18603497",
+        "rating_count": "18,603497",
         "review_count": "716574",
         "goodreads_followers": "112666",
         "shelved_count": "26364555",
-        "author_image": "https://images.gr-assets.com/authors/1630199330p5/153394.jpg",
+        "author_image": "https://images.gr-assets.com/authors/...jpg",
         "books": [
             {
                 "book_title": "The Hunger Games (The Hunger Games, #1)",
-                "big_image_url": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg",
-                "small_image_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg",
+                "big_image_url": "https://images-na.ssl-images-amazon.com...jpg",
+                "small_image_url": "https://images-na.ssl-images-amazon.com...jpg",
                 "review_count": "237,766",
                 "year_published": "2008",
                 "average_rating": "4.34",
@@ -178,8 +204,8 @@ if __name__ == "__main__":
             },
             {
                 "book_title": "Catching Fire (The Hunger Games, #2)",
-                "big_image_url": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028.jpg",
-                "small_image_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722941i/6148028._SY75_.jpg",
+                "big_image_url": "https://images-na.ssl-images-amazon.com...jpg",
+                "small_image_url": "https://images-na.ssl-images-amazon.com...jpg",
                 "review_count": "136,598",
                 "year_published": "2009",
                 "average_rating": "4.34",
@@ -187,12 +213,12 @@ if __name__ == "__main__":
             }]
     }]
 
-    cleaned_authors = clean_authors_info([author_data])
+    cleaned_authors = clean_authors_info(author_data)
 
-    for author in cleaned_authors:
-        for info in author:
-            print(f"{info}: {author[info]}")
+    for cleaned_author in cleaned_authors:
+        for info in cleaned_author:
+            print(f"{info}: {cleaned_author[info]}")
 
-        for book in author['books']:
+        for cleaned_book in cleaned_author['books']:
             print()
-            print(book)
+            print(cleaned_book)

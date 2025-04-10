@@ -8,7 +8,7 @@ import extract
 @pytest.fixture
 def mock_book_page_soup():
     '''Simulates the soup for the HTML for a goodreads book page used for testing.'''
-    with open('test_book_page.html', 'r', encoding="utf-8") as f:
+    with open('./test_book_page.html', 'r', encoding="utf-8") as f:
         html_content = f.read()
     return BeautifulSoup(html_content, "lxml")
 
@@ -16,7 +16,7 @@ def mock_book_page_soup():
 @pytest.fixture
 def mock_book_list_page_soup():
     '''Simulates the soup for the HTML for a goodreads book list page used for testing.'''
-    with open('test_book_list.html', 'r', encoding="utf-8") as f:
+    with open('./test_book_list.html', 'r', encoding="utf-8") as f:
         html_content = f.read()
     return BeautifulSoup(html_content, "lxml")
 
@@ -36,7 +36,7 @@ def mock_book_list_page_container_soup(mock_book_list_page_containers_sliced):
 @pytest.fixture
 def mock_author_page_soup():
     '''Simulates the soup for the HTML for a goodreads author page used for testing.'''
-    with open('test_author_page.html', 'r', encoding="utf-8") as f:
+    with open('./test_author_page.html', 'r', encoding="utf-8") as f:
         html_content = f.read()
     return BeautifulSoup(html_content, "lxml")
 

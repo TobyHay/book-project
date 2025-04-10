@@ -4,7 +4,7 @@ import pandas as pd
 import psycopg2
 from unittest.mock import MagicMock, patch
 from load import connect_to_database, get_database_authors, upload_new_values_to_database, get_author_id, \
-    get_database_books, is_valid_port, COLUMN_NAMES_IN_TABLES, get_new_authors_or_books, format_values_to_upload, \
+    get_database_books_by_author, is_valid_port, COLUMN_NAMES_IN_TABLES, get_new_authors_or_books, format_values_to_upload, \
     get_values_to_upload, get_book_id, load_book_or_author_data_into_table, load_measurements_into_table, \
     load_to_database
 
@@ -169,7 +169,7 @@ def test_get_database_books(mock_read_sql, fake_connection, book_info):
     book_return_value = book_info
     mock_read_sql_returns = pd.DataFrame(book_return_value)
     mock_read_sql.return_value = mock_read_sql_returns
-    books = get_database_books(1, fake_connection)
+    books = get_database_books_by_author(1, fake_connection)
     assert books == book_return_value
     assert mock_read_sql.call_count == 1
     assert isinstance(books, list) == True

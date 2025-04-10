@@ -88,14 +88,6 @@ def test_get_book_title(mock_book_list_page_container_soup):
     assert result == 'The Hunger Games (The Hunger Games, #1)'
 
 
-# def test_slice_book_average_rating():
-#     pass
-
-
-# def test_slice_book_rating_count():
-#     pass
-
-
 def test_get_book_aggregate_data(mock_book_list_page_container_soup):
     '''Tests 'get_book_aggregate_data' retrieves the correct content
       from a html container for a book from the book list html.'''
@@ -111,9 +103,6 @@ def test_get_year_published(mock_book_list_page_container_soup):
     result = extract.get_year_published(mock_book_list_page_container_soup)
     assert result == '2008'
 
-
-# def get_book_isbn():
-#     pass
 
 def test_get_individual_book_data(mock_book_list_page_container_soup):
     '''Tests 'get_individual_book_data' retrieves the correct content
@@ -132,33 +121,14 @@ def test_get_individual_book_data(mock_book_list_page_container_soup):
     }
 
 
-# @patch('extract.get_individual_book_data')
-# @patch('extract.BeautifulSoup.find_all')
-# def test_get_authors_books(patch_find_all, patch_individual_book_data, mock_book_list_page_containers_sliced, mock_book_list_page_soup):
-#     '''Tests 'get_author_books' retrieves the correct content
-#     from a mock soup of the html of the author's book list page'''
-#     patch_find_all.return_value = mock_book_list_page_containers_sliced
-#     patch_individual_book_data.return_value = {
-#         'average_rating': ' 4.34',
-#         'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg',
-#         'book_title': 'The Hunger Games (The Hunger Games, #1)',
-#         'book_url': 'https://www.goodreads.com/book/show/2767052-the-hunger-games',
-#         'rating_count': '9,369,265',
-#         'review_count': '238,137',
-#         'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg',
-#         'year_published': '2008'
-#     }
+'''
+def test_slice_book_average_rating():
+    pass
 
-#     result = extract.get_authors_books(mock_book_list_page_soup)
-#     assert result == [{
-#         'average_rating': ' 4.34',
-#         'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg',
-#         'book_title': 'The Hunger Games (The Hunger Games, #1)',
-#         'book_url': 'https://www.goodreads.com/book/show/2767052-the-hunger-games',
-#         'rating_count': '9,369,265',
-#         'review_count': '238,137',
-#         'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg',
-#         'year_published': '2008'
-#     }]
-#
-# RODRIGO WAS HERE!
+
+def test_slice_book_rating_count():
+    pass
+
+def get_book_isbn():
+    pass
+'''

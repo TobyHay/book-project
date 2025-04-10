@@ -1,5 +1,11 @@
 # 📚 Book Project: Author performance tracker
 
+A project for scraping and visualising data on author and book popularity from a range of websites, designed with publishers in mind.
+
+Data on author and book popularity, including ratings and reviews, are collected once daily. This data is visualised on an interactive dashboard for publishers. Here, new authors can be requested to be tracked, and daily email reports can be requested, containing summary statistics for chosen authors.
+
+Additional information on the project can be found [here](https://docs.google.com/document/d/1ihmuPt68K87EajOhWezTdoZqu7_oyWqp1QZHaR0cIeA/edit?tab=t.0).
+
 
 ## Table of Contents
 - [Overview](#overview)
@@ -26,17 +32,13 @@ Each directory has their own README file containing a deep overview of the purpo
 
 - `assets`: 
 
+
 ## 🤖 Automated testing & linting
 
 Within the `.github/workflows` directory, there are two files `pylinter.yml` and `...`.
 These files create automated actions on any python scripts within a pull request, which run pylint and pytest to ensure high accuracy and quality in the code provided.
 
-## 🏗️ System Architecture
-...
 
+# Architecture Diagram
 
-### Architecture Diagram:
-Insert Architecture Diagram image here...
-
-### ERD:
-Insert ERD image here...
+![Architecture Diagram](assets/architecture_diagram.png)

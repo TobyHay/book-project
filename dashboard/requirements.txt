@@ -1,0 +1,6 @@
+streamlit
+dotenv
+pandas
+streamlit
+altair
+psycopg2

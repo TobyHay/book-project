@@ -34,3 +34,6 @@ Please run `psql -h <db_ip_address> -U books_project -d booksdb`, followed
 by the database password when prompted, to run the schema.
 We have carefully specified column datatypes to meet the minimum requirements of our database. This allows it to run as 
 efficiently as possible without sacrificing functionality. 
+
+Entity Relationship Diagram:
+![Entity Relationship Diagram](../assets/entity_relationship_diagram.png)

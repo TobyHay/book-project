@@ -36,7 +36,7 @@ def validate_author(author: dict) -> dict:
         author['author_name'] = is_valid_author_name(author['author_name'])
 
         # Drop 0 ratings / Drop average rating 0 - What about new authors?
-        author['average_rating'] = is_valid_float(author['average_rating'])
+        author['average_rating'] = is_valid_rating(author['average_rating'])
         author['rating_count'] = is_valid_int(author['rating_count'])
         author['review_count'] = is_valid_int(author['review_count'])
 
@@ -64,7 +64,7 @@ def validate_book(book: dict) -> dict:
         book['book_title'] = is_valid_book_title(book['book_title'])
         book['year_published'] = is_valid_year(book['year_published'])
 
-        book['average_rating'] = is_valid_float(book['average_rating'])
+        book['average_rating'] = is_valid_rating(book['average_rating'])
         book['review_count'] = is_valid_int(book['review_count'])
         book['rating_count'] = is_valid_int(book['rating_count'])
 
@@ -146,10 +146,15 @@ def is_valid_float(value: str) -> float:
         raise ValueError("Invalid float (missing decimal point)")
 
     # Checks the number is a valid float (and rounds to 2dp)
-    number = round(float(float_str), 2)
-    if number < 5:
+    return round(float(float_str), 2)
+
+
+def is_valid_rating(rating: str) -> float:
+    number = is_valid_float(rating)
+
+    if number > 5:
         raise ValueError("Invalid rating (can't be greater than 5)")
-    return
+    return number
 
 
 def is_valid_year(year: str) -> int:
@@ -183,7 +188,7 @@ def is_valid_image_url(image_url):
 
 if __name__ == "__main__":
 
-    author_data = [{
+    example_author_data = [{
         "author_name": "Suzanne Collins",
         "author_url": "https://www.goodreads.com/author/show/...",
         "average_rating": "4.28",
@@ -213,7 +218,7 @@ if __name__ == "__main__":
             }]
     }]
 
-    cleaned_authors = clean_authors_info(author_data)
+    cleaned_authors = clean_authors_info(example_author_data)
 
     for cleaned_author in cleaned_authors:
         for info in cleaned_author:

@@ -36,7 +36,7 @@ This module focuses on extracting author information and contains the following 
 
 
 
-# Miscellaneous 
+# IMPORTANT 
 
 - `test_html_generator.py`: 
 -  Note: Do not use this!!

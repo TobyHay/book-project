@@ -119,16 +119,3 @@ def test_get_individual_book_data(mock_book_list_page_container_soup):
         'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg',
         'year_published': '2008'
     }
-
-
-'''
-def test_slice_book_average_rating():
-    pass
-
-
-def test_slice_book_rating_count():
-    pass
-
-def get_book_isbn():
-    pass
-'''

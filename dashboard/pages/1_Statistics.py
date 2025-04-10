@@ -24,47 +24,69 @@ def connect_to_database() -> psycopg2.connect:
         raise Exception(f"Error connecting to database: {e}")
 
 
-def get_all_data(connection: psycopg2.connect) -> pd.DataFrame:
+def get_authors(connection: psycopg2.connect) -> pd.DataFrame:
     '''Queries the database, returns and merges tables'''
-    query = """
-    SELECT * FROM author AS au
-    JOIN author_measurement AS am ON au.author_id = am.author_id
-    JOIN book AS b ON au.author_id = b.author_id
-    JOIN book_measurement AS bm ON b.book_id = bm.book_id
-    ORDER BY au.;"""
-
     query = """SELECT * FROM author"""
-    full_data = pd.read_sql(query, connection)
-    return full_data
+    return pd.read_sql(query, connection)
 
 
-def select_author() -> str:
-    author_names = ["JK Rowling"]
+def select_author(authors: pd.DataFrame) -> str:
+    author_names = authors['author_name']
+
     selected_author = st.selectbox(
         "Select an author to see long-term shelved count and rating analytics", author_names)
     return selected_author
 
 
-def select_book() -> str:
-    book_names = ["Harry Potter 1", "Harry Potter 2"]
+def get_author_data(author_name: str, connection: psycopg2.connect) -> pd.DataFrame:
+    '''Queries the database, returns and merges tables'''
+    author_query = """
+    SELECT a.*, am.* 
+    FROM author AS a
+    LEFT JOIN author_measurement AS am
+    ON a.author_id = am.author_id
+    WHERE a.author_name = %s;
+    """
+    return pd.read_sql(author_query, connection, params=(author_name,))
+
+
+def get_author_books(id: int, connection: psycopg2.connect) -> pd.DataFrame:
+    '''Queries the database, returns and merges tables'''
+
+    book_query = """
+    SELECT b.*, bm.*
+    FROM book AS b
+    JOIN book_measurement AS bm
+    ON b.book_id = bm.book_id
+    WHERE b.author_id = %s;
+    """
+
+    return pd.read_sql(book_query, connection, params=(id,))
+
+
+def select_book(books) -> str:
+    book_titles = books['book_title']
+
+    book_titles = ["Harry Potter 1", "Harry Potter 2"]
     selected_book = st.selectbox(
-        "Select a book for ratings over time", book_names)
+        "Select a book for ratings over time", book_titles)
     return selected_book
 
 
-def plot_line_shelved_count_over_time() -> None:
+def plot_line_shelved_count_over_time(df: pd.DataFrame) -> None:
     '''Plots line graph for Author's shelved count over time'''
 
     # Mock Data
     df = pd.DataFrame({
-        'date': pd.date_range(start='2023-01-01', periods=10, freq='D'),
+        'date_recorded': pd.date_range(start='2023-01-01', periods=10, freq='D'),
         'shelved_count': [3, 4, 2, 5, 4, 3, 4, 3, 5, 4], })
 
     fig = px.line(df,
-                  x='date',
+                  x='date_recorded',
                   y='shelved_count',
                   title="Shelved Count Over Time",
-                  labels={'date': 'Date'})
+                  labels={'date_recorded': 'Date',
+                          'shelved_count': 'Shelved Count'},)
 
     fig.update_traces(name='Shelved Count',
                       selector=dict(name='shelved_count'))
@@ -73,16 +95,23 @@ def plot_line_shelved_count_over_time() -> None:
 
 
 @st.cache_data(ttl=60)
-def plot_pie_book_ratings() -> None:
+def plot_pie_book_ratings(df: pd.DataFrame) -> None:
     '''Plots pie chart for the proportions of an Author's book ratings'''
+
+    # df['date_recorded'] = pd.to_datetime(df['date_recorded'])
+    df_sorted = df.sort_values(
+        by=['book_id', 'date_recorded'], ascending=[True, False])
+
+    df_new_values = df_sorted.groupby(
+        'book_id').first().reset_index()
 
     # Mock Data
     data = {
         'ratings': ['1-2', '0-1', '2-3', '3-4', '4-5'],
         'count': [45, 120, 75, 60, 100]}
-
     df = pd.DataFrame(data)
     df = df.sort_values(by='ratings')
+
     rating_order = ['0-1', '1-2', '2-3', '3-4', '4-5']
 
     fig = px.pie(df,
@@ -96,7 +125,7 @@ def plot_pie_book_ratings() -> None:
     st.plotly_chart(fig)
 
 
-def plot_line_ratings_over_time() -> None:
+def plot_line_ratings_over_time(book: str) -> None:
     '''Plots line graph for Author's Daily & Average Ratings over time'''
 
     # Mock Data
@@ -146,21 +175,25 @@ def plot_bar_books_per_author() -> None:
 
 if __name__ == "__main__":
     st.set_page_config(layout="wide")
-    connection = connect_to_database()
+    conn = connect_to_database()
 
-    author = select_author()
-    data = get_all_data(connection)
+    authors = get_authors(conn)
+    selected_author = select_author(authors)
+
+    author_data = get_author_data(selected_author, conn)
+    author_id = int(author_data['author_id'].iloc[:, 0])
+    author_books = get_author_books(author_id, conn)
 
     left1, right1 = st.columns(2)
     with left1:
-        plot_line_shelved_count_over_time()
+        plot_line_shelved_count_over_time(author_data)
     with right1:
-        plot_pie_book_ratings()
+        plot_pie_book_ratings(author_books)
 
     left2, right2 = st.columns(2)
     with left2:
-        book = select_book()
-        plot_line_ratings_over_time()
+        book = select_book(author_books)
+        plot_line_ratings_over_time(book)
     with right2:
         # Summary Stats
         st.write("Top authors of the week:")
@@ -168,5 +201,6 @@ if __name__ == "__main__":
         plot_bar_books_per_author()
         # TODO Too many authors, may clutter graph (what about top 10?)
 
-    data = get_all_data(connection)
-    st.write(data)
+    st.write(authors)
+
+    st.write(author_books)

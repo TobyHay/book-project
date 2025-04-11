@@ -91,51 +91,77 @@ def streamlit(conn: psycopg2.connect) -> None:
 
     with st.form("Author request form"):
         st.write("Please paste your chosen author's URL from GoodReads.com, in the following format: https://www.goodreads.com/author/show/153394.Suzanne_Collins Please note that this page must be the overall author page; .../author/show/... should be in the URL.")
-        new_author_url = st.text_input("Paste an author's URL here:")
-        submitted = st.form_submit_button('Add this author to the database')
+        author_url_input = st.text_input(
+            "Paste an author's URL here:", key="Author URL input")
+        submitted_author_request = st.form_submit_button(
+            'Add this author to the database')
 
-        if submitted:
-            author_name = " ".join(new_author_url.split(".")[-1].split("_"))
+        if submitted_author_request:
+            try:
+                author_name = " ".join(
+                    author_url_input.split(".")[-1].split("_"))
+            except Exception:
+                author_name = "Unknown Author"
             # Change author name
-        if not author_name:
-            author_name = "Unknown Author"
-        st.write(
-            f":hourglass_flowing_sand: Adding {author_name} to the author database...")
-        if validate_author_url(new_author_url) == True:
-            if is_author_in_system(new_author_url, conn) == True:
-                st.write("Author is already in the system!")
-            else:
+            finally:
                 st.write(
-                    ":hourglass: Loading the author's most up-to-date information...")
-                try:
-                    pipeline(new_author_url, conn)
-                    st.write(
-                        f":white_check_mark: Information loaded - head over to the visualisations page for in-depth analysis of {author_name}'s work!")
-    # Could make a hyperlink to take to vis page?
-                except Exception as e:
-                    st.write(
-                        ":x: Something went wrong when getting author's information - please try again, or contact the devs.")
+                    f":hourglass_flowing_sand: Adding {author_name} to the author database...")
+                if validate_author_url(author_url_input) == True:
+                    if is_author_in_system(author_url_input, conn) == True:
+                        st.write("Author is already in the system!")
+                    else:
+                        st.write(
+                            ":hourglass: Loading the author's most up-to-date information...")
+                        try:
+                            pipeline(author_url_input, conn)
+                            st.write(
+                                f":white_check_mark: Information loaded - head over to the visualisations page for in-depth analysis of {author_name}'s work!")
 
-            # Check if author already in DB
-            # Check if GoodReads.com/URL requests.gets a valid 200 response. Otherwise, print ("Cannot find author with that URL. Double check or try another.")
-            # ETL script taking in Author URL:
-            # INSERTING INTO author VALUES author_url, author_name, author_image, (author_id and author_date_added would auto-generate)
-            # INSERTING INTO book VALUES (all books associated with author)
-            # INSERTING INTO author_measurement (single author_measurement at current time)
-            #  INSERTING INTO book_measurement VALUES (single book_measurement for all books at current time)
-            # import pipeline script's function
+                        except Exception as e:
+                            st.write(
+                                ":x: Something went wrong when getting author's information - please try again, or contact the devs.")
+
+                    # Check if author already in DB
+                    # Check if GoodReads.com/URL requests.gets a valid 200 response. Otherwise, print ("Cannot find author with that URL. Double check or try another.")
+                    # ETL script taking in Author URL:
+                    # INSERTING INTO author VALUES author_url, author_name, author_image, (author_id and author_date_added would auto-generate)
+                    # INSERTING INTO book VALUES (all books associated with author)
+                    # INSERTING INTO author_measurement (single author_measurement at current time)
+                    #  INSERTING INTO book_measurement VALUES (single book_measurement for all books at current time)
+                    # import pipeline script's function
 
     st.header("Calling all publishers! :lower_left_ballpoint_pen:")
     st.write("We'll send you daily updates on authors of your choice - just enter your name, email, and the author you want to track, and we'll do the rest!")
     with st.form("Publisher sign-up form"):
         st.write("Please enter your name, email, and the select one of our tracked authors from the drop-down menu. To subscribe to an email report for multiple authors, please submit the form once for each author URL.")
-        publisher_email_request = st.text_input(
-            "Publisher Email to receive updates:")
-        publisher_author_subscription = st.text_input(
-            "Author URL to receive updates on:")
-        st.form_submit_button("Add this author to your mailing list")
-    # Check if author URL is in the system. Otherwise, direct above.
-    st.write(is_author_in_system("author_url", conn))
+        publisher_name_input = st.text_input(
+            "Publisher name to receive updates:", key="Publisher name input")
+        publisher_name_input = publisher_name_input[:50]
+        publisher_email_input = st.text_input(
+            "Publisher email to receive updates:", key="Publisher email input")
+        publisher_email_input = publisher_email_input[:50]
+
+        list_of_authors = pd.read_sql("SELECT author_name FROM author;", conn)[
+            'author_name'].unique()
+        publisher_author_choice = st.selectbox(
+            "select author", list_of_authors)
+        submitted_publisher_submission = st.form_submit_button(
+            "Add this author to your mailing list")
+        if submitted_publisher_submission:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO publisher (publisher_name, publisher_email) VALUES (%s, %s) RETURNING publisher_id", (publisher_name_input, publisher_email_input))
+            new_publisher_id = cursor.fetchone()[0]
+            int_new_publisher_id = int(new_publisher_id)
+
+            author_id = pd.read_sql(
+                "SELECT author_id FROM author WHERE author_name = %s", conn, params=(publisher_author_choice, ))['author_id'].iloc[0]
+            int_author_id = int(author_id)
+            cursor.execute(
+                "INSERT INTO author_assignment (author_id, publisher_id) VALUES (%s, %s)", (int_author_id, int_new_publisher_id))
+            conn.commit()
+            st.write(
+                f":white_check_mark: Successfully subscribed {publisher_name_input} ({publisher_email_input}) to {publisher_author_choice}! You will receive your first daily report tomorrow morning.")
 
 
 if __name__ == "__main__":

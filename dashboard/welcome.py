@@ -68,7 +68,6 @@ def streamlit(conn: psycopg2.connect) -> None:
     st.write("Welcome to the Publisher Dashboard! On this page, you'll be able to request authors to be tracked and submit email report preferences.")
     st.write("On the next page, summary statistics for some of our most popular authors can be seen. Use our interactive features to learn about your favourite author!")
     col1, col2, col3 = st.columns(3)
-    # Need to replace each of these read_sql string queries w the date_added from author and book... avoids joining and saves time
     with col1:
         books = len(pd.read_sql("SELECT * FROM book;", conn))
         books_since_yesterday = len(pd.read_sql(
@@ -97,6 +96,7 @@ def streamlit(conn: psycopg2.connect) -> None:
 
         if submitted:
             author_name = " ".join(new_author_url.split(".")[-1].split("_"))
+            # Change author name
         if not author_name:
             author_name = "Unknown Author"
         st.write(

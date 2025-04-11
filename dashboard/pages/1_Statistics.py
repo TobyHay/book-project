@@ -40,28 +40,43 @@ def select_author(authors: pd.DataFrame) -> str:
 
 def get_author_data(author_name: str, connection: psycopg2.connect) -> pd.DataFrame:
     '''Queries the database, returns and merges tables'''
-    author_query = """
-    SELECT a.*, am.* 
+    query = """
+    SELECT
+        a.*,
+        am.author_measurement_id,
+        am.rating_count,
+        am.average_rating,
+        am.date_recorded,
+        am.shelved_count,
+        am.review_count,
+        am.author_id AS am_author_id
     FROM author AS a
     LEFT JOIN author_measurement AS am
     ON a.author_id = am.author_id
     WHERE a.author_name = %s;
     """
-    return pd.read_sql(author_query, connection, params=(author_name,))
+    return pd.read_sql(query, connection, params=(author_name,))
 
 
-def get_author_books(id: int, connection: psycopg2.connect) -> pd.DataFrame:
+def get_author_books(author_name: int, connection: psycopg2.connect) -> pd.DataFrame:
     '''Queries the database, returns and merges tables'''
 
     book_query = """
-    SELECT b.*, bm.*
+    SELECT
+        b.*,
+        bm.book_measurement_id,
+        bm.rating_count,
+        bm.average_rating,
+        bm.date_recorded,
+        bm.review_count,
+        bm.book_id AS bm_book_id
     FROM book AS b
     JOIN book_measurement AS bm
     ON b.book_id = bm.book_id
-    WHERE b.author_id = %s;
+    WHERE b.author_id = (SELECT author_id FROM author WHERE author_name = %s LIMIT 1);
     """
 
-    return pd.read_sql(book_query, connection, params=(id,))
+    return pd.read_sql(book_query, connection, params=(author_name,))
 
 
 def select_book(books) -> str:
@@ -76,11 +91,6 @@ def select_book(books) -> str:
 def plot_line_shelved_count_over_time(df: pd.DataFrame) -> None:
     '''Plots line graph for Author's shelved count over time'''
 
-    # Mock Data
-    df = pd.DataFrame({
-        'date_recorded': pd.date_range(start='2023-01-01', periods=10, freq='D'),
-        'shelved_count': [3, 4, 2, 5, 4, 3, 4, 3, 5, 4], })
-
     fig = px.line(df,
                   x='date_recorded',
                   y='shelved_count',
@@ -94,33 +104,48 @@ def plot_line_shelved_count_over_time(df: pd.DataFrame) -> None:
     st.plotly_chart(fig)
 
 
+def convert_to_range(rating: int) -> str:
+    if 0 <= rating <= 1:
+        return '0-1'
+    if 1 < rating <= 2:
+        return '1-2'
+    if 2 < rating <= 3:
+        return '2-3'
+    if 3 < rating <= 4:
+        return '3-4'
+    if 4 < rating <= 5:
+        return '4-5'
+    raise ValueError("Invalid rating, does not fit between 0 and 5")
+
+
 @st.cache_data(ttl=60)
 def plot_pie_book_ratings(df: pd.DataFrame) -> None:
     '''Plots pie chart for the proportions of an Author's book ratings'''
 
-    # df['date_recorded'] = pd.to_datetime(df['date_recorded'])
     df_sorted = df.sort_values(
         by=['book_id', 'date_recorded'], ascending=[True, False])
 
-    df_new_values = df_sorted.groupby(
-        'book_id').first().reset_index()
+    df_latest_ratings = df_sorted.groupby('book_id').first().reset_index()
 
-    # Mock Data
-    data = {
-        'ratings': ['1-2', '0-1', '2-3', '3-4', '4-5'],
-        'count': [45, 120, 75, 60, 100]}
-    df = pd.DataFrame(data)
-    df = df.sort_values(by='ratings')
+    # df_rating_groups = df_latest_ratings['average_rating'].apply(
+    #     convert_to_range).reset_index()
 
-    rating_order = ['0-1', '1-2', '2-3', '3-4', '4-5']
+    df_latest_ratings['rating'] = df_latest_ratings['average_rating'].apply(
+        convert_to_range)
 
-    fig = px.pie(df,
-                 names='ratings',
+    df_rating_counts = df_latest_ratings['rating'].value_counts(
+    ).reset_index()
+
+    df_rating_counts.columns = ['rating', 'count']
+    rating_order = ['4-5', '3-4', '2-3', '1-2', '0-1']
+
+    fig = px.pie(df_rating_counts,
+                 names='rating',
                  values='count',
                  color='count',
                  title='Proportion of Boook Ratings',
                  color_discrete_sequence=px.colors.sequential.Blues_r,
-                 category_orders={'ratings': rating_order})
+                 category_orders={'rating': rating_order})
 
     st.plotly_chart(fig)
 
@@ -181,8 +206,7 @@ if __name__ == "__main__":
     selected_author = select_author(authors)
 
     author_data = get_author_data(selected_author, conn)
-    author_id = int(author_data['author_id'].iloc[:, 0])
-    author_books = get_author_books(author_id, conn)
+    author_books = get_author_books(selected_author, conn)
 
     left1, right1 = st.columns(2)
     with left1:
@@ -199,7 +223,7 @@ if __name__ == "__main__":
         st.write("Top authors of the week:")
 
         plot_bar_books_per_author()
-        # TODO Too many authors, may clutter graph (what about top 10?)
+        # TODO What happens with too many authors (what about top 10?)
 
     st.write(authors)
 

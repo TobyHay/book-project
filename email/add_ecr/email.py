@@ -6,8 +6,11 @@ terraform/main.tf using step 1
 This should be replaced with the python script you want to
 upload to one of the lambda functions
 """
-from dotenv import load_dotenv
+
 import os
+from dotenv import load_dotenv
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import boto3
 import pandas as pd
 import psycopg2
@@ -43,6 +46,7 @@ def get_publishers_tracked_data() -> pd.DataFrame:
 
 def generate_html_head(publisher_name:str):
     '''Generates a html head for a personalised email based on publisher name.'''
+    # TODO
     html = f'''
     <head>
         <meta charset="UTF-8">
@@ -53,6 +57,8 @@ def generate_html_head(publisher_name:str):
     return html
 
 def generate_html_body():
+    ''''''
+    # TODO
     html = '''
     <body>
     </body>
@@ -60,12 +66,26 @@ def generate_html_body():
     return html
 
 def format_html_email(head:str,body:str) -> str:
-    ''''''
+    ''''''# TODO
     return '<html lang="en">' + head + body + '</html>'
 
 
-def ship_html_to_ses() ->None:
-    ''''''
+def send_email(contents: dict):
+    """Send an email using AWS SES."""
+    client = boto3.client("ses", region_name="eu-west-2")
+    message = MIMEMultipart()
+    message["Subject"] = contents["subject"]
+    message["From"] = "trainee.hadia.fadlelmawla@sigmalabs.co.uk"
+    message["To"] = "trainee.hadia.fadlelmawla@sigmalabs.co.uk"
+
+    body = MIMEText(contents["body"], "plain")
+    message.attach(body)
+
+    client.send_raw_email(
+        Source=message["From"],
+        Destinations=[message["To"]],
+        RawMessage={"Data": message.as_string()}
+    )
 
 
 def lambda_handler():
@@ -74,4 +94,4 @@ def lambda_handler():
 
 
 if __name__ == "__main__":
-    
+    print('a')

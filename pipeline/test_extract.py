@@ -45,7 +45,7 @@ def test_get_authors_books_url(mock_author_page_soup):
     '''Tests 'get_author_books()' retrieves the correct 
     content from a mock soup of an author page'''
     result = extract.get_authors_books_url(mock_author_page_soup)
-    assert result == 'https://www.goodreads.com/author/list/153394.Suzanne_Collins?page=1&per_page=100'
+    assert result == 'https://www.goodreads.com/author/list/153394.Suzanne_Collins?page=1&per_page=10'
 
 
 def test_get_author_name(mock_author_page_soup):

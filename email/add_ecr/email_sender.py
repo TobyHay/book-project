@@ -31,7 +31,7 @@ def get_publishers_tracked_authors(n_of_days_of_data:int=2) -> dict:
     '''Gets all publishers  and their tracked authors from the DB'''
     try:
         conn = get_db_connection()
-        
+
         # sql = f'''
         #     SELECT publisher_name, publisher_email,
         #     a.author_id, author_name, author_url, author_image_url,
@@ -48,7 +48,7 @@ def get_publishers_tracked_authors(n_of_days_of_data:int=2) -> dict:
 
         sql = f'''
             SELECT publisher_name, publisher_email,
-            a.author_id
+            a.author_id, author_image_url
             FROM publisher as p
             LEFT JOIN author_assignment AS aa ON aa.publisher_id = p.publisher_id
             LEFT JOIN author AS a ON a.author_id = aa.author_id
@@ -57,7 +57,6 @@ def get_publishers_tracked_authors(n_of_days_of_data:int=2) -> dict:
         return pd.read_sql(sql,conn)
     finally:
         conn.close()
-
 
 
 def get_avg_rating_change_since_yesterday(author_id,tracked_authors:pd.DataFrame) -> int:

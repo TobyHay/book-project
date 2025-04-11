@@ -17,7 +17,7 @@ COLUMN_NAMES_IN_TABLES = {
     'book': ["author_id", "book_title", 'year_published',
              "small_image_url",
              "big_image_url", "book_url_path"],
-    'author': ['author_name', 'author_url'],
+    'author': ['author_name', 'author_url', 'author_image_url'],
     'author_measurement': ["rating_count", "average_rating",
                            "author_id", "shelved_count",
                            "review_count"],
@@ -59,7 +59,7 @@ def get_database_authors(conn: psycopg2.connect) -> list[dict]:
     """Queries the database for all author
     returns list of dict of all authors in database"""
 
-    query = 'SELECT author_name, author_url FROM author'
+    query = 'SELECT author_name, author_url, author_image_url FROM author'
     authors_df = pd.read_sql(query, conn)
     return authors_df.to_dict(orient='records')
 
@@ -112,7 +112,7 @@ def upload_new_values_to_database(values_to_upload: list[tuple], conn: psycopg2.
 
     column_count_dict = {
         6: '''VALUES (%s, %s, %s, %s, %s, %s)''',
-        2: '''VALUES (%s, %s)''',
+        3: '''VALUES (%s, %s, %s)''',
         5: '''VALUES (%s, %s, %s, %s, %s)''',
         4: '''VALUES (%s, %s, %s, %s)''',
     }

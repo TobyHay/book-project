@@ -4,7 +4,7 @@ import urllib.request
 from bs4 import BeautifulSoup
 
 GOODREADS_BASE_URL = 'https://www.goodreads.com'
-BOOKS_LIST_LIMIT_URL_PARAMETERS = '?page=1&per_page=100'
+BOOKS_LIST_LIMIT_URL_PARAMETERS = '?page=1&per_page=10'
 
 
 def get_soup(url: str) -> BeautifulSoup:
@@ -16,7 +16,7 @@ def get_soup(url: str) -> BeautifulSoup:
 
 def get_authors_books_url(author_soup: BeautifulSoup) -> str:
     '''Gets the link to the author's books list from their goodreads profile'''
-    books_url = author_soup.find("a", string='Suzanne Collins’s books')
+    books_url = author_soup.find("a", href=lambda x: x and '/author/list' in x)
     return GOODREADS_BASE_URL + books_url.get('href') + BOOKS_LIST_LIMIT_URL_PARAMETERS
 
 
@@ -106,7 +106,7 @@ def get_individual_book_data(book_container_soup: BeautifulSoup) -> dict:
     book_page_soup = get_soup(book_url)
     book_data = {
         'book_title': get_book_title(book_container_soup),
-        'book_url': book_url,
+        'book_url_path': book_url,
         'big_image_url': get_book_big_image_url(book_page_soup),
         'small_image_url': get_book_small_image_url(book_container_soup),
         'review_count': get_book_review_count(book_page_soup),
@@ -123,6 +123,7 @@ def get_authors_books(books_list_soup: BeautifulSoup) -> list[dict]:
     formatted_books = []
     for book in scraped_books:
         formatted_books.append(get_individual_book_data(book))
+        print(f"Book scraped")
     return formatted_books
 
 
@@ -145,7 +146,7 @@ def get_authors_books_measurement_data(author_soup: BeautifulSoup) -> dict:
     books_soup = get_soup(books_url)
 
     books_data = {'shelved_count': get_shelved_books_count(books_soup),
-                  'author_image': get_author_image(author_soup),
+                  'author_image_url': get_author_image(author_soup),
                   'books': get_authors_books(books_soup)}
     return books_data
 

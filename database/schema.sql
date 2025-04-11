@@ -11,7 +11,8 @@ CREATE TABLE author (
     author_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     author_name VARCHAR NOT NULL,
     author_url VARCHAR NOT NULL,
-    author_image_url VARCHAR
+    author_image_url VARCHAR,
+    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE author_assignment (
@@ -42,6 +43,7 @@ CREATE TABLE book (
     big_image_url VARCHAR,
     small_image_url VARCHAR,
     book_url_path VARCHAR NOT NULL,
+    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_author_id FOREIGN KEY (author_id) REFERENCES author (author_id)
 );
 

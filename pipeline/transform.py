@@ -42,7 +42,8 @@ def validate_author(author: dict, log: logging.Logger) -> dict:
             author['goodreads_followers'])
 
         author['author_url'] = is_valid_url(author['author_url'])
-        author['author_image'] = is_valid_image_url(author['author_image'])
+        author['author_image_url'] = is_valid_image_url(
+            author['author_image_url'])
 
         for key, value in author.items():
             if value is None:

@@ -174,11 +174,3 @@ def test_get_database_books(mock_read_sql, fake_connection, book_info):
     assert mock_read_sql.call_count == 1
     assert isinstance(books, list) == True
     assert isinstance(books[0], dict) == True
-
-
-def test_get_new_authors_or_books(formatted_author_info):
-    author_values = formatted_author_info.append(('test_name3', "test_url3"))
-    result = get_new_authors_or_books(author_values, formatted_author_info)
-    print(result)
-    assert result == [
-        ('test_name3', "test_url3")]

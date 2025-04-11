@@ -1,4 +1,7 @@
 "" > testing_result.txt
+
+git ls-tree -t HEAD:./ | awk '{if ($2 == "tree") print $4;}' | grep -e '^[a-zA-Z]' > all_dir.txt
+
 git ls-files | grep -e '^[a-zA-Z]*/test_[a-z]*\.py' > all_test_file_paths.txt
 
 echo pytesting all python files in every directory

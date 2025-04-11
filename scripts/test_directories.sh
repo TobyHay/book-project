@@ -16,8 +16,10 @@ cat testing_result.txt
 
 echo "All files tested"
 
-test_result=$(grep -w "FAILED" testing_result.txt)
-if [[ -n "$test_result" ]]; then
+failed_test_result=$(grep -w "FAILED" testing_result.txt)
+errors_test_result=$(grep -w "ERRORS" testing_result.txt)
+
+if [[ -n "$failed_test_result" || -n "$errors_test_result" ]]; then
     echo "Failing tests present!"
     exit 1
 else

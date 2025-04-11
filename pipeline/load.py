@@ -64,7 +64,8 @@ def get_database_authors(conn: psycopg2.connect) -> list[dict]:
     return authors_df.to_dict(orient='records')
 
 
-def get_database_books_by_author(author_id_for_books: int, conn: psycopg2.connect) -> list[dict]:
+def get_database_books_by_author(author_id_for_books: int,
+                                 conn: psycopg2.connect) -> list[dict]:
     """Queries the database for all books
     returns list of dict of all books in database"""
 
@@ -76,16 +77,84 @@ def get_database_books_by_author(author_id_for_books: int, conn: psycopg2.connec
     return books_df.to_dict(orient='records')
 
 
+def is_new_author(author: dict, database_author: dict) -> bool:
+    """Returns a boolean of True if an author is new (not in the database), 
+    otherwise false"""
+    if author['author_name'] != database_author['author_name'] and \
+            author['author_url'] != database_author['author_url']:
+        return True
+    return False
+
+
+def update_image_url_of_author(authors_to_be_updated: list[dict],
+                               conn: psycopg2.connect) -> None:
+    """Updates an existing author with the new author image url"""
+    for author in authors_to_be_updated:
+        author_id = get_author_id(author, conn)
+        author['author_id'] = author_id
+
+    cursor = conn.cursor()
+    query = """UPDATE author
+            SET author_image_url = %s
+            WHERE author_id = %s;"""
+    authors_to_be_updated = format_values_to_upload(
+        authors_to_be_updated, ['author_image_url', 'author_id'])
+
+    try:
+        cursor.executemany(
+            query, authors_to_be_updated)
+        conn.commit()
+    except Exception as err:
+        print(err)
+    finally:
+        cursor.close()
+
+
 def get_new_authors_or_books(new_values: list[dict],
-                             database_values: list[dict]) -> list[dict]:
-    """Filters either the author or books by the values already present in the database"""
-    return [author for author in new_values
-            if author not in database_values]
+                             database_values: list[dict], table_name: str,
+                             conn: psycopg2.connect) -> list[tuple]:
+    """
+    Filters either the author or books by the values already 
+    present in the database. In the case of the author, authors to be updated 
+    are also considered (changed author_image_url)
+    """
+    if table_name == 'book':
+        return [new_book for new_book in new_values
+                if new_book not in database_values]
+
+    update_authors = []
+    new_authors = []
+    for author in new_values:
+        for i, database_author in enumerate(database_values):
+            if not is_new_author(author, database_author) and \
+                    author['author_image_url'] != database_author['author_image_url']:
+                update_authors.append(author)
+
+            if is_new_author(author, database_author) and \
+                    author not in update_authors and i == len(database_values)-1:
+                new_authors.append(author)
+
+    if update_authors:
+        update_image_url_of_author(update_authors, conn)
+
+    return new_authors
+
+
+def extract_values_from_cleaned_data(values_to_format: list[dict],
+                                     column_names: list[str]) -> list[dict]:
+    """Returns the necessary data values based on the specified columns passed in"""
+    extracted_values_list = []
+    for row in values_to_format:
+        extracted_values = {}
+        for column_name in column_names:
+            extracted_values[column_name] = row[column_name]
+        extracted_values_list.append(extracted_values)
+    return extracted_values_list
 
 
 def format_values_to_upload(values_to_format: list[dict],
                             column_names: list[str]) -> list[tuple]:
-    """Returns the necessary data values based on the specified columns passed in"""
+    """Returns the data values to be uploaded in the correct format (list[tuple])"""
     values_to_upload = []
     for row_values in values_to_format:
         row_to_upload = [row_values[column] for column in column_names]
@@ -94,11 +163,12 @@ def format_values_to_upload(values_to_format: list[dict],
 
 
 def get_values_to_upload(cleaned_data: list[dict], table_name: str,
+                         conn: psycopg2.connect,
                          db_values: list[dict] = None) -> list[tuple]:
     """Returns the values that would be uploaded to the database"""
 
     values_to_upload = get_new_authors_or_books(
-        cleaned_data, db_values)
+        cleaned_data, db_values, table_name, conn)
 
     if len(values_to_upload) == 0:
         print(f'No {table_name} values to upload to database.')
@@ -182,14 +252,14 @@ def load_book_or_author_data_into_table(cleaned_data: list[dict], table_name: st
     else:
         raise ValueError("Invalid table given here.")
 
-    formatted_new_data = format_values_to_upload(
-        cleaned_data, column_names)
-
-    formatted_db_values = format_values_to_upload(
-        db_values, column_names)
+    formatted_values_for_comparison = []
+    for data_values in [cleaned_data, db_values]:
+        formatted_values_for_comparison.append(extract_values_from_cleaned_data(
+            data_values, column_names))
 
     new_filtered_data = get_values_to_upload(
-        formatted_new_data, table_name, formatted_db_values)
+        formatted_values_for_comparison[0], table_name,
+        conn, formatted_values_for_comparison[1])
 
     if new_filtered_data:
         upload_new_values_to_database(

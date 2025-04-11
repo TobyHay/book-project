@@ -79,12 +79,11 @@ def get_author_books(author_name: int, connection: psycopg2.connect) -> pd.DataF
     return pd.read_sql(book_query, connection, params=(author_name,))
 
 
-def select_book(books) -> str:
+def select_book(author_name: str, books: pd.DataFrame) -> str:
     book_titles = books['book_title']
 
-    book_titles = ["Harry Potter 1", "Harry Potter 2"]
     selected_book = st.selectbox(
-        "Select a book for ratings over time", book_titles)
+        f"Select a book from {author_name} for ratings over time", book_titles)
     return selected_book
 
 
@@ -127,9 +126,6 @@ def plot_pie_book_ratings(df: pd.DataFrame) -> None:
 
     df_latest_ratings = df_sorted.groupby('book_id').first().reset_index()
 
-    # df_rating_groups = df_latest_ratings['average_rating'].apply(
-    #     convert_to_range).reset_index()
-
     df_latest_ratings['rating'] = df_latest_ratings['average_rating'].apply(
         convert_to_range)
 
@@ -150,20 +146,16 @@ def plot_pie_book_ratings(df: pd.DataFrame) -> None:
     st.plotly_chart(fig)
 
 
-def plot_line_ratings_over_time(book: str) -> None:
+def plot_line_ratings_over_time(book: str, df: pd.DataFrame) -> None:
     '''Plots line graph for Author's Daily & Average Ratings over time'''
 
-    # Mock Data
-    df = pd.DataFrame({
-        'date': pd.date_range(start='2023-01-01', periods=10, freq='D'),
-        'daily_rating': [3, 4, 2, 5, 4, 3, 4, 3, 5, 4],
-        'average_rating': [3.5, 3.8, 3.4, 3.7, 3.6, 3.5, 3.7, 3.6, 3.9, 3.8]})
+    df_book = df.loc[df['book_title'] == book]
 
-    fig = px.line(df,
-                  x='date',
-                  y=['daily_rating', 'average_rating'],
+    fig = px.line(df_book,
+                  x='date_recorded',
+                  y=['rating_count', 'average_rating'],
                   title="Ratings Over Time",
-                  labels={'date': 'Date'})
+                  labels={'date_recorded': 'Date'})
 
     fig.update_traces(name='Daily Rating', selector=dict(name='daily_rating'))
     fig.update_traces(name='Average Rating',
@@ -216,15 +208,11 @@ if __name__ == "__main__":
 
     left2, right2 = st.columns(2)
     with left2:
-        book = select_book(author_books)
-        plot_line_ratings_over_time(book)
+        book = select_book(selected_author, author_books)
+        plot_line_ratings_over_time(book, author_books)
     with right2:
         # Summary Stats
         st.write("Top authors of the week:")
 
         plot_bar_books_per_author()
         # TODO What happens with too many authors (what about top 10?)
-
-    st.write(authors)
-
-    st.write(author_books)

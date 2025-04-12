@@ -326,62 +326,15 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
     "CreateEmailState": {
       "Type" : "Task",
       "Resource": "${aws_lambda_function.c16-book-project-create-email-lg.arn}",
-      "Output": {
-        "email": "{% $states.result %}"
-        },
-      "Next": "ChoiceState2"
+      "End": true
     },
 
     "FailureState": {
       "Type": "Fail",
       "Error": "DefaultStateError",
       "Cause": "Failed to scrape data and upload to RDS!"
-    },
-
-    "ChoiceState2": {
-      "Type": "Choice",
-      "Default": "FailureState2",
-      "Choices": [
-        {
-          "Next": "SendEmailState",
-          "Condition": "{% $contains($states.input.email, 'Title of email') = true %}"
-        }
-      ]
-    },
-
-    "SendEmailState": {
-      "Type" : "Task",
-      "Resource": "arn:aws:states:::aws-sdk:sesv2:sendEmail",
-      "Arguments": {
-        "Destination": { 
-            "ToAddresses": [ "${var.TO_EMAIL}" ]
-        },
-        "FromEmailAddress": "${var.FROM_EMAIL}",
-        "Content": { 
-            "Simple": { 
-                "Body": { 
-                    "Html": { 
-                    "Charset": "UTF-8",
-                    "Data": "{% $states.input.email %}"
-                    }
-                },
-                "Subject": { 
-                    "Charset": "UTF-8",
-                    "Data": "Title of email"
-                }
-            }
-        }
-      },
-      "End": true
-    },
-
-    "FailureState2": {
-      "Type": "Fail",
-      "Error": "DefaultStateError",
-      "Cause": "Failed to query RDS to create email!"
     }
   }
 }
 EOF
-
 }

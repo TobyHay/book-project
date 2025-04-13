@@ -43,12 +43,15 @@ def run_pipeline(author_url: str, conn: psycopg2.connect, log: logging.Logger) -
     log.info("Successfully loaded data into the database.")
 
 
-if __name__ == "__main__":
+def handler(event=None, context=None) -> dict:
+    '''Lambda handler function that runs the pipeline
+    returns status code of 200 if successful and 500 if an error is raised'''
     warnings.filterwarnings("ignore", category=UserWarning,
                             message="pandas only supports SQLAlchemy connectable")
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
+    connection = None
     try:
         connection = connect_to_database(
             DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT)
@@ -58,9 +61,17 @@ if __name__ == "__main__":
         for author in authors:
             run_pipeline(author, connection, logger)
 
+        return {"statusCode": 200}
+
     except Exception as e:
         logger.error("Error: %s", e)
+        return {"statusCode": 500}
 
     finally:
-        connection.close()
+        if connection:
+            connection.close()
         logger.info("Disconnected from database successfully")
+
+
+if __name__ == "__main__":
+    handler()

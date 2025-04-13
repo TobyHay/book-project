@@ -1,5 +1,5 @@
 '''A script that creates a Streamlit dashboard using book data from the RDS'''
-import os
+from os import environ as ENV
 from dotenv import load_dotenv
 import pandas as pd
 import requests
@@ -9,23 +9,19 @@ import psycopg2
 
 load_dotenv()
 
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_USERNAME = os.getenv("DB_USERNAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME = os.getenv("DB_NAME")
 
+def connect_to_database() -> psycopg2.connect:
+    '''Connects to the postgres database using information from a local env'''
 
-def get_connection() -> psycopg2.connect:
-    '''Returns a psycopg2 connection to the RDS using env vars'''
-    conn = psycopg2.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        database=DB_NAME,
-        user=DB_USERNAME,
-        password=DB_PASSWORD
-    )
-    return conn
+    try:
+        conn = psycopg2.connect(database=ENV.get("DB_NAME"),
+                                user=ENV.get("DB_USERNAME"),
+                                password=ENV.get("DB_PASSWORD"),
+                                host=ENV.get("DB_HOST"),
+                                port=ENV.get("DB_PORT"))
+        return conn
+    except Exception as e:
+        raise Exception(f"Error connecting to database: {e}")
 
 
 def validate_author_url(author_url: str) -> bool:
@@ -183,7 +179,8 @@ def publisher_signup_form(conn: psycopg2.connect) -> None:
 
 def streamlit() -> None:
     '''Main Streamlit script for the dashboard'''
-    conn = get_connection()
+    st.set_page_config(layout="wide")
+    conn = connect_to_database()
 
     st.title(":books: Book and Author Tracker - Publisher Dashboard! :books:")
     st.write("Welcome to the Publisher Dashboard! On this page, you'll be able to request authors to be tracked and submit email report preferences.")

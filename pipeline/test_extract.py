@@ -113,9 +113,9 @@ def test_get_individual_book_data(mock_book_list_page_container_soup):
         'average_rating': ' 4.34',
         'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg',
         'book_title': 'The Hunger Games (The Hunger Games, #1)',
-        'book_url': 'https://www.goodreads.com/book/show/2767052-the-hunger-games',
+        'book_url_path': 'https://www.goodreads.com/book/show/2767052-the-hunger-games',
         'rating_count': '9,369,265',
-        'review_count': '238,137',
+        'review_count': '238,340',
         'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg',
         'year_published': '2008'
     }

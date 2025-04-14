@@ -7,3 +7,4 @@ altair
 psycopg2
 logging
 bs4
+.env

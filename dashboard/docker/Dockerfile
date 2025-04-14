@@ -12,6 +12,10 @@ EXPOSE 8501
 
 CMD ["streamlit", "run", "welcome.py"]
 
+
+# Create Docker Image
 # cd to book-project
-# docker build -t book-dashboard:v2 --platform "linux/amd64" -f dashboard/docker/Dockerfile dashboard/
-# docker run --platform linux/amd64 --env-file pipeline/.env -p 8501:8501 book-dashboard:v2
+# docker build -t book-dashboard:v3 --platform "linux/amd64" -f docker/Dockerfile .
+
+# Testing Image Locally
+# docker run --platform linux/amd64 --env-file .env -p 8501:8501 book-dashboard:v2

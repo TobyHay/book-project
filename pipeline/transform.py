@@ -4,6 +4,7 @@ and converting it into a valid format for loading into the database'''
 import logging
 
 EXPECTED_KEYS = 9
+GOODREADS_URL = "https://www.goodreads.com/author/show/"
 
 
 def clean_authors_info(authors: list[dict], log: logging.Logger) -> list[dict]:
@@ -41,7 +42,7 @@ def validate_author(author: dict, log: logging.Logger) -> dict:
         author['goodreads_followers'] = is_valid_int(
             author['goodreads_followers'])
 
-        author['author_url'] = is_valid_url(author['author_url'])
+        author['author_url'] = standardise_author_url(author['author_url'])
         author['author_image_url'] = is_valid_image_url(
             author['author_image_url'])
 
@@ -177,6 +178,15 @@ def is_valid_url(url: str) -> str:
     return url
 
 
+def standardise_author_url(url: str) -> str:
+    '''Standardises the author url to only include the goodreads url
+    and the goodreads author id which is the endpoint'''
+    valid_url = is_valid_url(url)
+    endpoint = valid_url.split(GOODREADS_URL)[1]
+    standardised_endpoint = endpoint.split(".")[0]
+    return GOODREADS_URL + standardised_endpoint
+
+
 def is_valid_image_url(image_url: str) -> str:
     '''Checks that the image URL is valid and returns a .jpg'''
     is_valid_url(image_url)
@@ -193,7 +203,7 @@ if __name__ == "__main__":
                            'review_count': '720,399',
                            'goodreads_followers': '112,797',
                            'shelved_count': '26,364,555',
-                           'author_image': 'https://images.gr-assets.com/authors/1630199330p5/153394.jpg',
+                           'author_image_url': 'https://images.gr-assets.com/authors/1630199330p5/153394.jpg',
                            'books': [
                                {'book_title': 'The Hunger Games (The Hunger Games, #1)', 'book_url_path': 'https://www.goodreads.com/book/show/2767052-the-hunger-games', 'big_image_url': 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052.jpg',
                                 'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg', 'review_count': '238,133', 'year_published': '2008', 'average_rating': ' 4.34', 'rating_count': '9,369,399'},

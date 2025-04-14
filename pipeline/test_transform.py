@@ -31,7 +31,7 @@ PERFECTLY_FORMATTED_AUTHOR = {
     "review_count": 716574,
     "goodreads_followers": 112666,
     "shelved_count": 26364555,
-    "author_url": "https://www.goodreads.com/author/show/153394.Suzanne_Collins?from_search=true&from_srp=true",
+    "author_url": "https://www.goodreads.com/author/show/153394",
     "author_image_url": "https://images.gr-assets.com/authors/1630199330p5/153394.jpg",
     "books": []
 }

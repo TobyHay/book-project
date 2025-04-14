@@ -1,0 +1,1 @@
+- NOTE: YOUR ACCOUNT MUST BE EXITED FROM SANDBOX MODE IN ORDER TO SEND EMAILS THAT ARE NOT VERIFIED ON YOUR AWS. TO EXIT SANDBOX FOLLOW: https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html?icmpid=docs_ses_console 

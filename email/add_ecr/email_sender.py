@@ -13,6 +13,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime 
 import boto3
+from botocore.exceptions import ClientError
 import pandas as pd
 import psycopg2
 
@@ -30,6 +31,7 @@ def get_db_connection() ->psycopg2.extensions.connection:
     )
 
 
+
 def get_publishers_tracked_authors(publisher_id:int) -> list[tuple]:
     '''Gets all publishers  and their tracked authors from the DB'''
     try:
@@ -45,10 +47,26 @@ def get_publishers_tracked_authors(publisher_id:int) -> list[tuple]:
             ;
             '''
         cur.execute(sql)
-        print(publisher_id,cur.fetchall())
         return cur.fetchall()
     finally:
         conn.close()
+
+
+def get_publisher_ids() -> list[tuple]:
+    ''''''
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        sql = f'''
+            SELECT 
+            publisher_id
+            FROM publisher
+            ;
+            '''
+        cur.execute(sql)
+        return cur.fetchall()
+    finally:
+            conn.close()
 
 
 def get_publishers_name(publisher_id:int) -> str:
@@ -64,7 +82,7 @@ def get_publishers_name(publisher_id:int) -> str:
             ;
             '''
         cur.execute(sql)
-        return cur.fetchone()
+        return cur.fetchone()[0]
     finally:
         conn.close()
 
@@ -82,7 +100,7 @@ def get_publishers_email(publisher_id:int) -> str:
             ;
             '''
         cur.execute(sql)
-        return cur.fetchone()
+        return cur.fetchone()[0]
     finally:
         conn.close()
 
@@ -104,7 +122,11 @@ def get_avg_rating_difference_since_yesterday(author_id) -> int:
             ;
             '''
         cur.execute(sql)
-        return cur.fetchall()[1][0]
+        rating_change = cur.fetchall()
+        if not rating_change:
+            return 'No historical data for this author yet.'
+        print(rating_change)
+        return rating_change[1][0]
     finally:
         conn.close()
 
@@ -125,7 +147,10 @@ def get_shelved_difference_from_yesterday(author_id) -> int:
             ;
             '''
         cur.execute(sql)
-        return cur.fetchall()[1][0]
+        shelved_change = cur.fetchall()
+        if not shelved_change:
+            return 'No historical data for this author yet.'
+        return shelved_change[1][0]
     finally:
         conn.close()
 
@@ -178,10 +203,15 @@ def generate_author_html_container(author_id:int) -> str:
 def generate_html_body(publisher_id:int) -> str:
     ''''''
     publisher_name = get_publishers_name(publisher_id)
+    if not publisher_name:
+        raise ValueError('No valid publisher for the given id.') 
+
     author_ids = get_publishers_tracked_authors(publisher_id)
+    if not author_ids:
+        raise ValueError('The specified publisher is not tracking any authors.') 
+
     html_cards = ""
     for id in author_ids:
-        print(author_ids, id)
         id = id[0]
         html_cards = html_cards+generate_author_html_container(id)
 
@@ -189,30 +219,57 @@ def generate_html_body(publisher_id:int) -> str:
     <body>
     Dear {publisher_name}, <br><br>The following authors had noteworthy engagement:
     '''
-    html = html +html_cards
+    html = html + html_cards
     return html + '</body>'
 
 def format_html_email(body:str) -> str:
     '''Formats the html for an email'''
     return '<html lang="en">' + body + '</html>'
 
+def get_email_subject(publisher_id:int) -> str:
+    date = get_todays_date_formatted()
+    name = get_publishers_name(publisher_id)
+    return name+'\'s' +' Daily Tracker '+date
+    
  
-def send_email(email_html: str): # TODO
+def send_email(email_html: str,publisher_id:int): # TODO
     """Send an email using AWS SES. requires AWS CLI?"""
-    client = boto3.client("ses", region_name="eu-west-2")
+    client = boto3.client("ses",
+                           region_name="eu-west-2",
+                           aws_access_key_id=os.getenv(''))
     message = MIMEMultipart()
-    message["Subject"] = NotImplementedError
+    message["Subject"] = get_email_subject(publisher_id)
     message["From"] = "trainee.rodrigo.montemayor@sigmalabs.co.uk"
-    message["To"] = "trainee.rodrigo.montemayor@sigmalabs.co.uk"
+    message["To"] = get_publishers_email(publisher_id)
 
-    body = MIMEText(email_html,param_html='?')
+    body = MIMEText(email_html,'html')
     message.attach(body)
 
     client.send_raw_email(
         Source=message["From"],
         Destinations=[message["To"]],
-        RawMessage={"Data": message.as_string()} # Should this be RawMessage? shouldnt it be html?
+        RawMessage={"Data": message.as_string()}
     )
+
+
+def send_email_to_publisher(publisher_id:int) -> None:
+    ''''''
+    html_body = generate_html_body(publisher_id)
+    html_email = format_html_email(html_body)
+    send_email(html_email,publisher_id)
+
+
+def send_email_to_all_publishers() -> None:
+    ''''''
+    publisher_ids = get_publisher_ids()
+    for id in publisher_ids:
+        try:
+            send_email_to_publisher(id[0])
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'MessageRejected':
+                print("Message was rejected:", e.response['Error']['Message'])
+            else:
+                raise e
 
 
 def lambda_handler():
@@ -220,13 +277,6 @@ def lambda_handler():
     print("This script has been uploaded correctly.")
 
 
-def write_to_html_for_test(html:str) -> None:
-    with open('test.html', 'w', encoding='utf-8') as f:
-        f.write(html)
-
 
 if __name__ == "__main__":
-    body = generate_html_body(1)
-    html = (format_html_email(body))
-    write_to_html_for_test(html)
-    print(get_avg_rating_difference_since_yesterday(3),'a')
+    send_email_to_all_publishers()

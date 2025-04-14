@@ -84,27 +84,42 @@ Once the ECR repository has been set up with a Docker image, only step 5 is requ
 
 # ECR Image
 
-### **≤CONTAINS ALL THE STEPS REQUIRED TO SET UP THE DOCKER IMAGE FOR THE DASHBOARD DEPENDING ON FILE FORMAT TO BE CHANGED V≥**
+## Dockerfile
 
-#### ...
-add_ecr/ - Contains code for setting up the lambda Docker image
+The `Dockerfile` contains the script to create the Docker image for the dashboard. This is going to be stored inside an ECR image, where it will run on ECS.
 
-This is an example folder for deploying a lambda script to AWS ECR. Two folders should be created that follow the same structure for both ECR repositories, containing:
+This `Dockerfile` image uses the following files within this directory:
+- `requirements.txt` - All requirements for the
 
-* `Dockerfile` - which includes the commands required to convert the lambda function script into a Docker image
+- `welcome.py` - the python script which runs the streamlit dashboard. This is to be converted into a Docker image, alongside all scripts inside the `pages` folder
 
-* `placeholder_image_for_ecr.py` - which is the lambda script to be converted into a Docker image.
+- `.env` - mentioned at the start of this README, and contians the relevant information to connect to the database,
+
+
 
 
 ## Get started
 
-To set up the ECR repository with the lambda Docker image, carry out the following steps after carrying out steps 1 and 2 from the terraform section:
+To set up the ECR repository with the Docker image, carry out the following steps after carrying out steps 1 and 2 from the terraform section:
 
-1. Replace the `placeholder_image_for_ecr.py` placeholder script with your lambda script
 
-2. Replace `placeholder_image_for_ecr` in the `Dockerfile` on line 5 and 9 with the name of your script.
+1. Build your docker image by running the command shown below while located in the dashboard directory. The `c16-book-project-dashboard-ecr` statement must be changed to your ECR name if you have specified a different name.
 
-3. Follow the steps on [here](https://docs.aws.amazon.com/lambda/latest/dg/python-image.html#python-image-instructions) to dockerise the python script.
+```
+docker build -t c16-book-project-dashboard-ecr --platform "linux/amd64" -f Dockerfile .
+```
 
-4. Follow the push commands on the AWS console for the relevant ECR repository
-#### ...
+2. Find your AWS ECR repository location on the AWS website
+
+
+3. Follow step 1, 3 and 4 of the push commands on the AWS console for the relevant ECR repository, found in `View push commands`.
+
+This will push the docker image into your AWS repository, so that it is able to run the desired scripts.
+
+## Run locally
+
+Once you have created the docker image in step 1 above, you can test this docker file locally by running the following command in the dashboard directory:
+
+```
+docker run --platform linux/amd64 --env-file .env -p 8501:8501 c16-book-project-dashboard-ecr
+```

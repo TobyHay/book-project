@@ -15,8 +15,7 @@ EXPOSE 5432
 CMD [ "pipeline.handler" ]
 
 # Create Docker Image
-# cd to book-project
-# docker build -t book-pipeline:v2 --platform "linux/amd64" -f docker/Dockerfile pipeline/
+# docker build -t book-pipeline:v2 --platform "linux/amd64" -f Dockerfile pipeline/
 
 # Testing Image Locally
 # docker run --platform linux/amd64 --env-file .env -p 9000:8080 book-pipeline:v2

@@ -3,6 +3,6 @@ pylint
 requests
 bs4
 lxml
-psycopg2
+psycopg2-binary
 pandas
 python-dotenv

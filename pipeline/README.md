@@ -70,3 +70,37 @@ The all functions in `extract.py`, `transform.py` and `load.py` are tested in th
 ```
 pytest test_<insert_script_here>
 ```
+
+
+
+
+# Creating a docker image
+
+To add the docker image to the ECR repository, carry out the following steps after creating an ECR repository:
+
+1. Build your docker image by running the command shown below while located in the pipeline directory. The `c16-book-project-write-to-rds-ecr` statement must be changed to your ECR name if you have specified a different name.
+
+```
+docker build -t c16-book-project-write-to-rds-ecr --platform "linux/amd64" -f Dockerfile .
+```
+
+2. Find your AWS ECR repository location on the AWS website
+
+
+3. Follow step 1, 3 and 4 of the push commands on the AWS console for the relevant ECR repository, found in `View push commands`.
+
+This will push the docker image into your AWS repository, so that it is able to run the desired scripts.
+
+## Run locally
+
+Once you have created the docker image in step 1 above, you can test this docker file locally by running the following command in the pipeline directory:
+
+```
+docker run --platform linux/amd64 --env-file .env -p 9000:8080 c16-book-project-write-to-rds-ecr
+```
+
+Then run the curl script which initialises the lambda to run the pipeline
+
+```
+curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+```

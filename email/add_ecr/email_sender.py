@@ -16,6 +16,9 @@ import boto3
 import pandas as pd
 import psycopg2
 
+
+TEST_IMAGE_URL ='https://images.gr-assets.com/authors/1630199330p5/153394.jpg'
+
 def get_db_connection() ->psycopg2.extensions.connection:
     load_dotenv()
     return psycopg2.connect(
@@ -48,7 +51,7 @@ def get_publishers_tracked_authors(n_of_days_of_data:int=2) -> dict:
 
         sql = f'''
             SELECT publisher_name, publisher_email,
-            a.author_id, author_image_url
+            a.author_id, a.author_name
             FROM publisher as p
             LEFT JOIN author_assignment AS aa ON aa.publisher_id = p.publisher_id
             LEFT JOIN author AS a ON a.author_id = aa.author_id
@@ -69,33 +72,73 @@ def get_todays_date_formatted() -> str:
     return datetime.today().strftime("%Y-%m-%d")
 
 
-def generate_html_head(publisher_name:str):
-    '''Generates a html head for a personalised email based on publisher name.'''
-    # TODO
-    html = f'''
-    <head>
-        <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{publisher_name}'s Daily Author Tracking</title>
-    </head>
-    '''
-    return html
+# def generate_html_head(publisher_name:str) ->str:
+#     '''DEPRECATED.'''
+#     # TODO
+#     html = f'''
+#     <head>
+#         <meta charset="UTF-8">
+#             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#         <title>{publisher_name}'s Daily Author Tracking</title>
+#     </head>
+#     '''
+#     return html
 
-def generate_html_body():
+def get_image_url_from_author_id() -> str:
+    '''Gets the author's image from their id'''
+    try:
+        conn = get_db_connection()
+        sql = '''
+        SELECT 
+        FROM
+        WHERE
+        '''
+    finally:
+        conn.close()
+
+def generate_author_container(author_id:int) -> str:
+    ''''''
+    image_url = TEST_IMAGE_URL
+    daily_shelved = '--'
+    avg_rating_change ='--'
+    container_html = f'''
+        <table width="100%" border="0" cellspacing="0" cellpadding="0"> 
+          <tr>
+            <td align="left" valign="top" width="150" style="padding: 10px;">
+              <img src="{image_url}" width="150" alt="A picture of the author" style="display: block;">
+            </td>
+            <td align="left" valign="top" style="padding: 10px; font-family: Arial;">
+              <h3 style="margin: 0;">Author engagement:</h3>
+              <p style="margin:5px 0 0 0;">
+              Daily Shelved: {daily_shelved} 
+              <br> 
+              Avg Rating Change: {avg_rating_change}
+              </p>
+            </td>
+          </tr>
+        </table>              
+        '''
+    return container_html
+
+def generate_html_body(publisher_id:int) -> str:
     ''''''
     # TODO
-    html = '''
+    publisher_name = 'Suzanne collins'
+    html = f'''
     <body>
     Dear {publisher_name}, 
 
-
-    </body>
+    The following authors had noteworthy engagement:
     '''
-    return html
 
-def format_html_email(head:str,body:str) -> str:
-    ''''''# TODO
-    return '<html lang="en">' + head + body + '</html>'
+    html_cards = generate_author_container(2)
+    html = html+(html_cards*100)
+    return html + '</body>'
+
+def format_html_email(publisher_id:int,head:str,body:str) -> str:
+    '''Formats the html for a given publisher'''
+
+    return '<html lang="en">' + body + '</html>'
 
  
 def send_email(email_html: str):
@@ -121,9 +164,14 @@ def lambda_handler():
     print("This script has been uploaded correctly.")
 
 
-if __name__ == "__main__":
-    print()
-    df = get_publishers_tracked_authors()
-    # df = (author_aggregates(df))
+def write_to_html_for_test(html:str) -> None:
+    with open('test.html', 'w', encoding='utf-8') as f:
+        f.write(html)
 
-    print(df)
+
+if __name__ == "__main__":
+    body = generate_html_body(2)
+    head = 'a' #generate_html_head(2)
+
+    html = (format_html_email(1,head,body))
+    write_to_html_for_test(html)

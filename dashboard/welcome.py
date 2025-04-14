@@ -6,8 +6,6 @@ import requests
 import streamlit as st
 import psycopg2
 
-from pipeline import run_pipeline_for_one_author
-
 
 def connect_to_database() -> psycopg2.connect:
     '''Connects to the postgres database using information from a local env'''

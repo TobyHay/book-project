@@ -104,9 +104,11 @@ def test_get_year_published(mock_book_list_page_container_soup):
     assert result == '2008'
 
 
-def test_get_individual_book_data(mock_book_list_page_container_soup):
+@patch('extract.get_soup')
+def test_get_individual_book_data(patch_get_soup, mock_book_list_page_container_soup, mock_book_page_soup):
     '''Tests 'get_individual_book_data' retrieves the correct content
     from a html container for a book from the book list html'''
+    patch_get_soup.return_value = mock_book_page_soup
     result = extract.get_individual_book_data(
         mock_book_list_page_container_soup)
     assert result == {
@@ -115,7 +117,7 @@ def test_get_individual_book_data(mock_book_list_page_container_soup):
         'book_title': 'The Hunger Games (The Hunger Games, #1)',
         'book_url_path': 'https://www.goodreads.com/book/show/2767052-the-hunger-games',
         'rating_count': '9,369,265',
-        'review_count': '238,340',
+        'review_count': '238,122',
         'small_image_url': 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1586722975i/2767052._SX50_.jpg',
         'year_published': '2008'
     }

@@ -30,85 +30,140 @@ def get_db_connection() ->psycopg2.extensions.connection:
     )
 
 
-def get_publishers_tracked_authors(n_of_days_of_data:int=2) -> dict:
+def get_publishers_tracked_authors(publisher_id:int) -> list[tuple]:
     '''Gets all publishers  and their tracked authors from the DB'''
     try:
         conn = get_db_connection()
-
-        # sql = f'''
-        #     SELECT publisher_name, publisher_email,
-        #     a.author_id, author_name, author_url, author_image_url,
-        #     shelved_count, average_rating
-        #     FROM publisher as p
-        #     LEFT JOIN author_assignment AS aa ON aa.publisher_id = p.publisher_id
-        #     LEFT JOIN author AS a ON a.author_id = aa.author_id
-        #     LEFT JOIN author_measurement AS am ON a.author_id = am.author_id
-        #     WHERE am.date_recorded > (now() - '{n_of_days_of_data} days'::interval)
-        #     ;
-            # '''
-        #              # WHERE clause makes it scaleable vs getting all data BUT only allows for values vs ytday
-
-
+        cur = conn.cursor()
         sql = f'''
-            SELECT publisher_name, publisher_email,
-            a.author_id, a.author_name
+            SELECT 
+            a.author_id
             FROM publisher as p
             LEFT JOIN author_assignment AS aa ON aa.publisher_id = p.publisher_id
             LEFT JOIN author AS a ON a.author_id = aa.author_id
+            where p.publisher_id = {publisher_id}
             ;
             '''
-        return pd.read_sql(sql,conn)
+        cur.execute(sql)
+        print(publisher_id,cur.fetchall())
+        return cur.fetchall()
     finally:
         conn.close()
 
 
-def get_avg_rating_change_since_yesterday(author_id,tracked_authors:pd.DataFrame) -> int:
-    '''gets ratings since yesterday for a given author_id'''
-    return 
+def get_publishers_name(publisher_id:int) -> str:
+    ''''''
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        sql = f'''
+            SELECT 
+            publisher_name
+            FROM publisher
+            WHERE publisher_id = {publisher_id}
+            ;
+            '''
+        cur.execute(sql)
+        return cur.fetchone()
+    finally:
+        conn.close()
 
+
+def get_publishers_email(publisher_id:int) -> str:
+    ''''''
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        sql = f'''
+            SELECT 
+            publisher_email
+            FROM publisher
+            WHERE publisher_id = {publisher_id}
+            ;
+            '''
+        cur.execute(sql)
+        return cur.fetchone()
+    finally:
+        conn.close()
+
+
+def get_avg_rating_difference_since_yesterday(author_id) -> int:
+    '''gets ratings since yesterday for a given author_id'''
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        sql = f'''
+            SELECT 
+            average_rating - LAG(average_rating) OVER (
+                ORDER BY am.date_recorded DESC) avg_change_since_yesterday
+            FROM author AS a
+            JOIN author_measurement AS am ON a.author_id = am.author_id
+            WHERE am.author_id = {author_id}
+            ORDER BY am.date_recorded DESC
+            LIMIT 2
+            ;
+            '''
+        cur.execute(sql)
+        return cur.fetchall()[1][0]
+    finally:
+        conn.close()
+
+def get_shelved_difference_from_yesterday(author_id) -> int:
+    '''gets shelved increase since yesterday for a given author_id'''
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        sql = f'''
+            SELECT 
+            shelved_count - LAG(shelved_count) OVER (
+                ORDER BY am.date_recorded DESC) shelved_increase_since_yesterday
+            FROM author AS a
+            JOIN author_measurement AS am ON a.author_id = am.author_id
+            WHERE am.author_id = {author_id}
+            ORDER BY am.date_recorded DESC
+            LIMIT 2
+            ;
+            '''
+        cur.execute(sql)
+        return cur.fetchall()[1][0]
+    finally:
+        conn.close()
 
 def get_todays_date_formatted() -> str:
     '''Returns today's date formatted in y-m-d for use in the email's subject.'''
     return datetime.today().strftime("%Y-%m-%d")
 
 
-# def generate_html_head(publisher_name:str) ->str:
-#     '''DEPRECATED.'''
-#     # TODO
-#     html = f'''
-#     <head>
-#         <meta charset="UTF-8">
-#             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-#         <title>{publisher_name}'s Daily Author Tracking</title>
-#     </head>
-#     '''
-#     return html
-
-def get_image_url_from_author_id() -> str:
-    '''Gets the author's image from their id'''
+def get_author_info(author_id:int) -> str:
+    '''Gets the author's information from their id'''
     try:
         conn = get_db_connection()
-        sql = '''
-        SELECT 
-        FROM
-        WHERE
+        cur = conn.cursor()
+        sql = f'''
+        SELECT author_name, author_image_url
+        FROM author
+        WHERE author_id = {author_id}
         '''
+        print(sql)
+        cur.execute(sql)
+        author_name, image_url = cur.fetchone()
+        return author_name, image_url
     finally:
         conn.close()
 
-def generate_author_container(author_id:int) -> str:
+def generate_author_html_container(author_id:int) -> str:
     ''''''
-    image_url = TEST_IMAGE_URL
-    daily_shelved = '--'
-    avg_rating_change ='--'
+    author_name,image_url = get_author_info(author_id)
+    daily_shelved = get_shelved_difference_from_yesterday(author_id)
+    avg_rating_change = get_avg_rating_difference_since_yesterday(author_id)
     container_html = f'''
         <table width="100%" border="0" cellspacing="0" cellpadding="0"> 
           <tr>
             <td align="left" valign="top" width="150" style="padding: 10px;">
-              <img src="{image_url}" width="150" alt="A picture of the author" style="display: block;">
+              <img src="{image_url}" width="150" alt="A picture of the author_name" style="display: block;">
             </td>
             <td align="left" valign="top" style="padding: 10px; font-family: Arial;">
-              <h3 style="margin: 0;">Author engagement:</h3>
+              <h3 style="margin: 0;">{author_name}'s engagement:</h3>
               <p style="margin:5px 0 0 0;">
               Daily Shelved: {daily_shelved} 
               <br> 
@@ -122,26 +177,27 @@ def generate_author_container(author_id:int) -> str:
 
 def generate_html_body(publisher_id:int) -> str:
     ''''''
-    # TODO
-    publisher_name = 'Suzanne collins'
+    publisher_name = get_publishers_name(publisher_id)
+    author_ids = get_publishers_tracked_authors(publisher_id)
+    html_cards = ""
+    for id in author_ids:
+        print(author_ids, id)
+        id = id[0]
+        html_cards = html_cards+generate_author_html_container(id)
+
     html = f'''
     <body>
-    Dear {publisher_name}, 
-
-    The following authors had noteworthy engagement:
+    Dear {publisher_name}, <br><br>The following authors had noteworthy engagement:
     '''
-
-    html_cards = generate_author_container(2)
-    html = html+(html_cards*100)
+    html = html +html_cards
     return html + '</body>'
 
-def format_html_email(publisher_id:int,head:str,body:str) -> str:
-    '''Formats the html for a given publisher'''
-
+def format_html_email(body:str) -> str:
+    '''Formats the html for an email'''
     return '<html lang="en">' + body + '</html>'
 
  
-def send_email(email_html: str):
+def send_email(email_html: str): # TODO
     """Send an email using AWS SES. requires AWS CLI?"""
     client = boto3.client("ses", region_name="eu-west-2")
     message = MIMEMultipart()
@@ -170,8 +226,7 @@ def write_to_html_for_test(html:str) -> None:
 
 
 if __name__ == "__main__":
-    body = generate_html_body(2)
-    head = 'a' #generate_html_head(2)
-
-    html = (format_html_email(1,head,body))
+    body = generate_html_body(1)
+    html = (format_html_email(body))
     write_to_html_for_test(html)
+    print(get_avg_rating_difference_since_yesterday(3),'a')

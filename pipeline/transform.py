@@ -4,6 +4,7 @@ and converting it into a valid format for loading into the database'''
 import logging
 
 EXPECTED_KEYS = 9
+GOODREADS_URL = "https://www.goodreads.com/author/show/"
 
 
 def clean_authors_info(authors: list[dict], log: logging.Logger) -> list[dict]:
@@ -177,12 +178,13 @@ def is_valid_url(url: str) -> str:
     return url
 
 
-def standardise_author_url(url):
-    goodreads_url = "https://www.goodreads.com/author/show/"
+def standardise_author_url(url: str) -> str:
+    '''Standardises the author url to only include the goodreads url
+    and the goodreads author id which is the endpoint'''
     valid_url = is_valid_url(url)
-    endpoint = valid_url.split(goodreads_url)[1]
+    endpoint = valid_url.split(GOODREADS_URL)[1]
     standardised_endpoint = endpoint.split(".")[0]
-    return goodreads_url + standardised_endpoint
+    return GOODREADS_URL + standardised_endpoint
 
 
 def is_valid_image_url(image_url: str) -> str:

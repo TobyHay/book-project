@@ -53,7 +53,7 @@ The Terraform files can be run using the following steps for the first time:
 
 3. Copy the image uri for each lambda function that is outputted by step 2 and paste the value into the corresponding variable in the `variables.tf` file
 
-4. Carry out the steps within the ['Get Started'](#get-started-1) section below to add a Docker image to the new ECR repositories that have been created.
+4. Carry out the steps within the ['Get Started'](#get-started-1) section below to add a Docker image to the new ECR repositories that have been created in step 2.
 
 5. Run `terraform apply` once complete to apply the rest of script.
 

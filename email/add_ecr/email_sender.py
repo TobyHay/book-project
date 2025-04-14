@@ -208,7 +208,9 @@ def generate_html_body(publisher_id:int) -> str:
 
     author_ids = get_publishers_tracked_authors(publisher_id)
     if not author_ids:
-        raise ValueError('The specified publisher is not tracking any authors.') 
+        print('The specified publisher is not tracking any authors.') 
+        html = f'<body> Dear {publisher_name}, <br><br>No tracked authors were found. Please add an author on the Bookworm dashboard.'
+        return html + '</body>' 
 
     html_cards = ""
     for id in author_ids:

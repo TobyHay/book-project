@@ -86,14 +86,14 @@ Once the ECR repository has been set up with a Docker image, only step 5 is requ
 
 ## Dockerfile
 
-The `Dockerfile` contains the script to create the Docker image for the dashboard. This is going to be stored inside an ECR image, where it will run on ECS.
+The `Dockerfile` contains the script to create the Docker image for the dashboard. This is going to be stored inside an ECR repository, where it will run on ECS.
 
 This `Dockerfile` image uses the following files within this directory:
-- `requirements.txt` - All requirements for the
+- `requirements.txt` - All requirements for the dashboard script.
 
-- `welcome.py` - the python script which runs the streamlit dashboard. This is to be converted into a Docker image, alongside all scripts inside the `pages` folder
+- `welcome.py` - the python script which runs the streamlit dashboard. This is to be converted into a Docker image, alongside all scripts inside the `pages` folder.
 
-- `.env` - mentioned at the start of this README, and contians the relevant information to connect to the database,
+- `.env` - mentioned at the start of this README, and contains the relevant information to connect to the database.
 
 
 

@@ -91,6 +91,8 @@ docker build -t c16-book-project-write-to-rds-ecr --platform "linux/amd64" -f Do
 
 This will push the docker image into your AWS repository, so that it is able to run the desired scripts.
 
+These steps should also be repeated for the send email lambda, located in the `email` directory.
+
 ## Run locally
 
 Once you have created the docker image in step 1 above, you can test this docker file locally by running the following command in the pipeline directory:

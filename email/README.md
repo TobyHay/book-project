@@ -14,10 +14,11 @@ terraform/ - contains code for storage infrastructure
     * Creates 2 ECR repositories for the lambda docker images
     * Creates a security group
     * Specifies ingress-egress rules for the security group
-    * Sets up the IAM roles for the lambda and state machine
+    * Sets up the IAM roles for all the resources
     * Creates a CloudWatch log group for both resources
     * Creates 2 Lambda Functions
     * Creates a AWS Step Function
+    * Creates a AWS EventBridge Schedule
     * Returns the ECR image uri's in the terminal once step 1 from above has finished running.
 
 * variables.tf 

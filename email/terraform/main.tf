@@ -338,3 +338,83 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
 }
 EOF
 }
+
+
+
+# IAM for AWS EventBridge
+
+data "aws_iam_policy_document" "assume_role_scheduler" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["scheduler.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "c16-book-project-trigger-state-machine" {
+  name               = "c16-book-project-trigger-state-machine"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_scheduler.json
+}
+
+data "aws_iam_policy_document" "c16-book-project-trigger-state-machine" {
+  statement {
+    effect    = "Allow"
+    actions   = ["iam:PassRole"]
+    resources = ["*"]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["states:StartExecution"]
+    resources = ["arn:aws:states:*:*:stateMachine:*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = ["logs:GetLogEvents",
+                "logs:PutLogEvents"]
+    resources = ["arn:aws:logs:*:*:log-group:/aws/ecs/*:log-stream:*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = ["logs:CreateLogStream",
+                "logs:DescribeLogStreams",
+                "logs:PutRetentionPolicy",
+                "logs:CreateLogGroup"]
+    resources = ["arn:aws:logs:*:*:log-group:/aws/ecs/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "c16-book-project-trigger-state-machine" {
+  name   = "c16-book-project-trigger-state-machine"
+  role   = aws_iam_role.c16-book-project-trigger-state-machine.id
+  policy = data.aws_iam_policy_document.c16-book-project-trigger-state-machine.json
+}
+
+
+
+# AWS EventBridge
+
+resource "aws_scheduler_schedule" "sfn_scheduled_task_etl_pipeline_email" {
+  name       = "c16-book-project-pipeline-schedule"
+  group_name = "default"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  schedule_expression = "cron(0 9 * * ? 2025)"
+  
+  
+  target {
+    arn = aws_sfn_state_machine.sfn_state_machine.arn
+    role_arn = aws_iam_role.c16-book-project-trigger-state-machine.arn
+    input = "{\"stateMachineArn\":\"arn:aws:states:::stateMachine:${aws_sfn_state_machine.sfn_state_machine.name}:${aws_sfn_state_machine.sfn_state_machine.revision_id}\"}" 
+  }
+}

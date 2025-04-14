@@ -236,7 +236,8 @@ def send_email(email_html: str,publisher_id:int): # TODO
     """Send an email using AWS SES. requires AWS CLI?"""
     client = boto3.client("ses",
                            region_name="eu-west-2",
-                           aws_access_key_id=os.getenv(''))
+                           aws_access_key_id=os.getenv('ACCESS_KEY'),
+                           aws_secret_access_key=os.getenv('SECRET_KEY'))
     message = MIMEMultipart()
     message["Subject"] = get_email_subject(publisher_id)
     message["From"] = "trainee.rodrigo.montemayor@sigmalabs.co.uk"

@@ -8,3 +8,8 @@ logging
 bs4
 pytest
 pylint
+plotly
+lxml
+time
+urllib.request
+python-dotenv

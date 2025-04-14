@@ -18,14 +18,6 @@ variable "DB_HOST" {
   type=string
 }
 
-variable "FROM_EMAIL" {
-  type=string
-}
-
-variable "TO_EMAIL" {
-  type=string
-}
-
 variable "c16-VPC" {
   type=string
   default = "vpc-0f7ba8057a52dd82d"

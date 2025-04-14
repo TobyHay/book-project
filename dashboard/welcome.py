@@ -1,16 +1,12 @@
 '''A script that creates a Streamlit dashboard using book data from the RDS'''
 from os import environ as ENV
 import logging
-from dotenv import load_dotenv
 import pandas as pd
 import requests
 import streamlit as st
 import psycopg2
 
 from pipeline import run_pipeline_for_one_author
-
-
-load_dotenv()
 
 
 def connect_to_database() -> psycopg2.connect:

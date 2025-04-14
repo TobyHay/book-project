@@ -6,4 +6,5 @@ altair
 psycopg2
 logging
 bs4
-dotenv
+pytest
+pylint

@@ -1,11 +1,4 @@
-'''This library assumes that the measurement for today (9am ish) has already finished.'''
-
-"""
-TODO:
-- Implement aggregate data calcs for the email summary
-- Implement html generator
-- Implement author link
-"""
+'''''' # TODO
 
 import os
 from dotenv import load_dotenv
@@ -17,10 +10,8 @@ from botocore.exceptions import ClientError
 import pandas as pd
 import psycopg2
 
-
-TEST_IMAGE_URL ='https://images.gr-assets.com/authors/1630199330p5/153394.jpg'
-
 def get_db_connection() ->psycopg2.extensions.connection:
+    '''''' # TODO
     load_dotenv()
     return psycopg2.connect(
         database=os.getenv('DB_NAME'),
@@ -53,7 +44,7 @@ def get_publishers_tracked_authors(publisher_id:int) -> list[tuple]:
 
 
 def get_publisher_ids() -> list[tuple]:
-    ''''''
+    '''''' # TODO
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -70,7 +61,7 @@ def get_publisher_ids() -> list[tuple]:
 
 
 def get_publishers_name(publisher_id:int) -> str:
-    ''''''
+    '''''' # TODO
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -88,7 +79,7 @@ def get_publishers_name(publisher_id:int) -> str:
 
 
 def get_publishers_email(publisher_id:int) -> str:
-    ''''''
+    '''''' # TODO
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -177,7 +168,7 @@ def get_author_info(author_id:int) -> str:
         conn.close()
 
 def generate_author_html_container(author_id:int) -> str:
-    ''''''
+    '''''' # TODO
     author_name,image_url = get_author_info(author_id)
     daily_shelved = get_shelved_difference_from_yesterday(author_id)
     avg_rating_change = get_avg_rating_difference_since_yesterday(author_id)
@@ -201,7 +192,7 @@ def generate_author_html_container(author_id:int) -> str:
     return container_html
 
 def generate_html_body(publisher_id:int) -> str:
-    ''''''
+    '''''' # TODO
     publisher_name = get_publishers_name(publisher_id)
     if not publisher_name:
         raise ValueError('No valid publisher for the given id.') 
@@ -225,7 +216,7 @@ def generate_html_body(publisher_id:int) -> str:
     return html + '</body>'
 
 def format_html_email(body:str) -> str:
-    '''Formats the html for an email'''
+    '''Formats the html for an email''' 
     return '<html lang="en">' + body + '</html>'
 
 def get_email_subject(publisher_id:int) -> str:
@@ -235,7 +226,7 @@ def get_email_subject(publisher_id:int) -> str:
     
  
 def send_email(email_html: str,publisher_id:int): # TODO
-    """Send an email using AWS SES. requires AWS CLI?"""
+    """Send an email using AWS SES. requires AWS CLI?""" # TODO 
     client = boto3.client("ses",
                            region_name="eu-west-2",
                            aws_access_key_id=os.getenv('ACCESS_KEY'),
@@ -256,14 +247,14 @@ def send_email(email_html: str,publisher_id:int): # TODO
 
 
 def send_email_to_publisher(publisher_id:int) -> None:
-    ''''''
+    '''''' # TODO
     html_body = generate_html_body(publisher_id)
     html_email = format_html_email(html_body)
     send_email(html_email,publisher_id)
 
 
 def send_email_to_all_publishers() -> None:
-    ''''''
+    '''''' # TODO
     publisher_ids = get_publisher_ids()
     for id in publisher_ids:
         try:
@@ -275,9 +266,10 @@ def send_email_to_all_publishers() -> None:
                 raise e
 
 
-def lambda_handler():
-    "Example function in this script"
-    print("This script has been uploaded correctly.")
+def lambda_handler(event,context):
+    "handles" # TODO
+    send_email_to_all_publishers()
+    
 
 
 

@@ -36,8 +36,6 @@ DB_PASSWORD=<your_database_password>
 DB_PORT=5432
 DB_NAME=<your_database_name>
 DB_HOST=<your_database_address>
-FROM_EMAIL=<your_email_address>
-TO_EMAIL=<the_email_address_to_send_an_email_to>
 ```
 
 This configuration assumes that AWS CLI has been set up and so AWS keys are not required within the `terraform.tfvars`. If you haven't set up the AWS CLI, you can follow up to step 3 from this [article](https://medium.com/@simonazhangzy/installing-and-configuring-the-aws-cli-7d33796e4a7c) to help you.
@@ -55,7 +53,7 @@ The Terraform files can be run using the following steps for the first time:
 
 3. Copy the image uri for each lambda function that is outputted by step 2 and paste the value into the corresponding variable in the `variables.tf` file
 
-4. Carry out the steps below to add a Docker image to the new ECR repositories that have been created under the heading ECR Images.
+4. Carry out the steps within the ['Get Started'](#get-started-1) section below to add a Docker image to the new ECR repositories that have been created in step 2.
 
 5. Run `terraform apply` once complete to apply the rest of script.
 
@@ -73,7 +71,7 @@ This is an example folder for deploying a lambda script to AWS ECR. Two folders 
 * `placeholder_image_for_ecr.py` - which is the lambda script to be converted into a Docker image.
 
 
-## Get started
+## Get started <a name="dockerise_image"></a>
 
 To set up the ECR repository with the lambda Docker image, carry out the following steps after carrying out steps 1 and 2 from the terraform section:
 

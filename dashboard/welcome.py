@@ -141,7 +141,7 @@ def standardise_author_url(url: str) -> str:
     return GOODREADS_URL + standardised_endpoint
 
 
-def mini_etl(author_url, conn):
+def mini_etl(author_url: str, conn: psycopg2.connect):
     '''A mini version of the URL that inserts author information only into the DB'''
     author_data = get_author_data(author_url)
     try:

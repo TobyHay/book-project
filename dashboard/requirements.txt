@@ -5,3 +5,5 @@ streamlit
 requests
 altair
 psycopg2
+logging
+bs4

@@ -1,10 +1,13 @@
 '''A script that creates a Streamlit dashboard using book data from the RDS'''
 from os import environ as ENV
+import logging
 from dotenv import load_dotenv
 import pandas as pd
 import requests
 import streamlit as st
 import psycopg2
+
+from pipeline import run_pipeline_for_one_author
 
 
 load_dotenv()
@@ -52,9 +55,9 @@ def is_author_in_system(author_url: str, conn: psycopg2.connect) -> bool:
     return False
 
 
-def pipeline(author_url: str, conn: psycopg2.connect) -> bool:
+def pipeline(author_url: str, conn: psycopg2.connect, log: logging.Logger) -> bool:
     '''ETL script for single author URL - uploads all author/book info to RDS'''
-    pass
+    run_pipeline_for_one_author(author_url, conn, logger)
 
 
 def infer_author_name(url: str) -> str:
@@ -109,7 +112,7 @@ def summary_cols(conn: psycopg2.connect) -> None:
                   publishers, f"{publishers_since_yesterday} publishers since yesterday", border=True)
 
 
-def author_request_form(conn: psycopg2.connect) -> None:
+def author_request_form(conn: psycopg2.connect, logger: logging.Logger) -> None:
     '''Form for requesting author via URL, triggers ETL pipeline'''
     st.write("Please paste your chosen author's URL from GoodReads.com, in the following format: https://www.goodreads.com/author/show/153394.Suzanne_Collins Please note that this page must be the overall author page; .../author/show/... should be in the URL.")
 
@@ -124,22 +127,31 @@ def author_request_form(conn: psycopg2.connect) -> None:
         st.write(
             f":hourglass_flowing_sand: Adding {author_name} to the author database...")
         if validate_author_url(author_url_input) is True:
+            logger.info(f"PASSED: Valid URL check - {author_url_input}")
             if is_author_in_system(author_url_input, conn) is True:
+                logger.info(
+                    f"FAILED: Author URL already in system - {author_url_input}")
                 st.write("Author is already in the system!")
             else:
+                logger.info(
+                    f"PASSED: Author not in system - {author_url_input}")
                 st.write(
                     ":hourglass: Loading the author's most up-to-date information...")
                 try:
-                    pipeline(author_url_input, conn)
+                    pipeline(author_url_input, conn, logger)
+                    logger.info(
+                        f"PASSED: Pipeline loaded - {author_url_input}")
+
                     st.write(
                         f":white_check_mark: Information loaded - head over to the visualisations page for in-depth analysis of {author_name}'s work!")
                 except Exception:
+                    logger.info(
+                        f"FAILED: Pipeline - {author_url_input}")
                     st.write(
                         ":x: Something went wrong when getting author's information - please try again, or contact the devs.")
-                # import pipeline script's function
 
 
-def publisher_signup_form(conn: psycopg2.connect) -> None:
+def publisher_signup_form(conn: psycopg2.connect, logger: logging.Logger) -> None:
     '''Form for publishers to sign up to author emails'''
     st.write("Please enter your name, email, and the select one of our tracked authors from the drop-down menu. To subscribe to an email report for multiple authors, please submit the form once for each author URL.")
 
@@ -177,7 +189,7 @@ def publisher_signup_form(conn: psycopg2.connect) -> None:
                 f":white_check_mark: Successfully subscribed {publisher_name_input} ({publisher_email_input}) to {publisher_author_choice}! You will receive your first daily report tomorrow morning.")
 
 
-def streamlit() -> None:
+def streamlit(logger) -> None:
     '''Main Streamlit script for the dashboard'''
     st.set_page_config(layout="wide")
     conn = connect_to_database()
@@ -192,16 +204,19 @@ def streamlit() -> None:
     st.write("Request your favourite book or author to be added to our database! Authors or books added will be included in our summary statistics on the next page.")
 
     with st.form("Author request form"):
-        author_request_form(conn)
+        author_request_form(conn, logger)
 
     st.header("Calling all publishers! :lower_left_ballpoint_pen:")
     st.write("We'll send you daily updates on authors of your choice - just enter your name, email, and the author you want to track, and we'll do the rest!")
 
     with st.form("Publisher sign-up form"):
-        publisher_signup_form(conn)
+        publisher_signup_form(conn, logger)
 
     conn.close()
 
 
 if __name__ == "__main__":
-    streamlit()
+    logger = logging.getLogger()
+    logging.basicConfig(filename='dashboard_logging.txt',
+                        encoding='utf-8', level=logging.INFO)
+    streamlit(logger)

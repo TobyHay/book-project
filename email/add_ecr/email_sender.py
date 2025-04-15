@@ -1,5 +1,4 @@
 '''This script sends a report email to the users of the Bookworm dashboard.''' 
-
 import os
 from dotenv import load_dotenv
 from email.mime.multipart import MIMEMultipart
@@ -171,6 +170,21 @@ def generate_author_html_container(author_id:int) -> str:
     daily_shelved = get_shelved_difference_from_yesterday(author_id)
     avg_rating_change = get_avg_rating_difference_since_yesterday(author_id)
     container_html = f'''
+            <tr>
+              <td align="left" valign="top" width="150" style="padding: 10px;">
+                <img src="https://images.gr-assets.com/authors/1630199330p5/153394.jpg" width="100" alt="A picture of the author_name" style="display: block; border-radius: 5px;">
+              </td>
+              <td align="left" valign="top" style="padding: 10px; font-family: Arial, sans-serif;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #2c3e50;">Suzanne Collins's Engagement</h3>
+                <p style="margin: 0; font-size: 14px; color: #555;">
+                  <strong>Daily Shelved:</strong> No historical data for this author yet.<br> 
+                  <strong>Avg Rating Change:</strong> No historical data for this author yet.
+                </p>
+              </td>
+            </tr>
+
+
+
         <table width="100%" border="0" cellspacing="0" cellpadding="0"> 
           <tr>
             <td align="left" valign="top" width="150" style="padding: 10px;">
@@ -189,6 +203,17 @@ def generate_author_html_container(author_id:int) -> str:
         '''
     return container_html
 
+
+def generate_html_head():
+    html = '''
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publisher Report Email</title>
+    </head>
+    '''
+    return html
+
 def generate_html_body(publisher_id:int) -> str:
     '''Returns the html body of the email message'''
     publisher_name = get_publishers_name(publisher_id)
@@ -196,8 +221,12 @@ def generate_html_body(publisher_id:int) -> str:
         raise ValueError('No valid publisher for the given id.') 
 
     author_ids = get_publishers_tracked_authors(publisher_id)
+    author_ids= [(1,)] # TODO: CLEAR THIS LINE
     if not author_ids:
-        html = f'<body> Dear {publisher_name}, <br><br>No tracked authors were found. Please add an author on the Bookworm dashboard.'
+        html = f'''<body style="font-family: 'Poppins', Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333333; line-height: 1.5;"> 
+        Dear {publisher_name}, 
+        <br><br>
+        No tracked authors were found. Please add an author on the Bookworm dashboard.'''
         return html + '</body>' 
 
     html_cards = ""
@@ -206,16 +235,21 @@ def generate_html_body(publisher_id:int) -> str:
         html_cards = html_cards+generate_author_html_container(id)
 
     html = f'''
-    <body>
-    Dear {publisher_name}, <br><br>The following authors had noteworthy engagement:
+    <body style="font-family: 'Poppins', Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333333; line-height: 1.5;>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; padding: 20px;">
+        <tr>
+          <td>
+            <p style="font-size: 16px; margin: 0 0 15px 0;">Dear <strong>{publisher_name}</strong>,</p>
+            <p style="font-size: 15px; margin: 0 0 20px 0;">The following authors had noteworthy engagement:</p>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fafafa; border-radius: 6px; overflow: hidden;">
     '''
     html = html + html_cards
     return html + '</body>'
 
 
-def format_html_email(body:str) -> str:
+def format_html_email(head:str,body:str) -> str:
     '''Formats the html for an update email''' 
-    return '<html lang="en">' + body + '</html>'
+    return '<html lang="en">' + head+ body + '</html>'
 
 
 def get_email_subject(publisher_id:int) -> str:
@@ -271,7 +305,17 @@ def send_email_to_all_publishers() -> None:
 def lambda_handler(event,context):
     "Lambda handler function allows AWS lambda to utilise the script." 
     send_email_to_all_publishers()
-    
+
+
+def save_test_html(publisher_id:int) -> None:
+    html_body = generate_html_body(publisher_id)
+    html_head = generate_html_head()
+    html_email = format_html_email(html_head,html_body)
+    with open('test.html','w') as f:
+        f.write(html_email)
 
 if __name__ == "__main__":
-    send_email_to_all_publishers()
+    # send_email_to_all_publishers()
+
+    
+    save_test_html(1)

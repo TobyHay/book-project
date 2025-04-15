@@ -1,4 +1,4 @@
-'''''' # TODO
+'''This script sends a report email to the users of the Bookworm dashboard.''' 
 
 import os
 from dotenv import load_dotenv
@@ -11,7 +11,7 @@ import pandas as pd
 import psycopg2
 
 def get_db_connection() ->psycopg2.extensions.connection:
-    '''''' # TODO
+    '''Gets a connection to the DB specified in the .env''' 
     load_dotenv()
     return psycopg2.connect(
         database=os.getenv('DB_NAME'),
@@ -44,7 +44,7 @@ def get_publishers_tracked_authors(publisher_id:int) -> list[tuple]:
 
 
 def get_publisher_ids() -> list[tuple]:
-    '''''' # TODO
+    '''Gets the ids of all publishers'''
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -61,7 +61,7 @@ def get_publisher_ids() -> list[tuple]:
 
 
 def get_publishers_name(publisher_id:int) -> str:
-    '''''' # TODO
+    '''Returns the name for the specified publisher id'''
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -79,7 +79,7 @@ def get_publishers_name(publisher_id:int) -> str:
 
 
 def get_publishers_email(publisher_id:int) -> str:
-    '''''' # TODO
+    '''Returns the email for the specified publisher id'''
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -116,7 +116,6 @@ def get_avg_rating_difference_since_yesterday(author_id) -> int:
         rating_change = cur.fetchall()
         if not rating_change:
             return 'No historical data for this author yet.'
-        print(rating_change)
         return rating_change[1][0]
     finally:
         conn.close()
@@ -160,7 +159,6 @@ def get_author_info(author_id:int) -> str:
         FROM author
         WHERE author_id = {author_id}
         '''
-        print(sql)
         cur.execute(sql)
         author_name, image_url = cur.fetchone()
         return author_name, image_url
@@ -168,7 +166,7 @@ def get_author_info(author_id:int) -> str:
         conn.close()
 
 def generate_author_html_container(author_id:int) -> str:
-    '''''' # TODO
+    ''''''
     author_name,image_url = get_author_info(author_id)
     daily_shelved = get_shelved_difference_from_yesterday(author_id)
     avg_rating_change = get_avg_rating_difference_since_yesterday(author_id)
@@ -192,14 +190,13 @@ def generate_author_html_container(author_id:int) -> str:
     return container_html
 
 def generate_html_body(publisher_id:int) -> str:
-    '''''' # TODO
+    '''Returns the html body of the email message'''
     publisher_name = get_publishers_name(publisher_id)
     if not publisher_name:
         raise ValueError('No valid publisher for the given id.') 
 
     author_ids = get_publishers_tracked_authors(publisher_id)
     if not author_ids:
-        print('The specified publisher is not tracking any authors.') 
         html = f'<body> Dear {publisher_name}, <br><br>No tracked authors were found. Please add an author on the Bookworm dashboard.'
         return html + '</body>' 
 
@@ -215,18 +212,21 @@ def generate_html_body(publisher_id:int) -> str:
     html = html + html_cards
     return html + '</body>'
 
+
 def format_html_email(body:str) -> str:
-    '''Formats the html for an email''' 
+    '''Formats the html for an update email''' 
     return '<html lang="en">' + body + '</html>'
 
+
 def get_email_subject(publisher_id:int) -> str:
+    '''Formats and returns the email subject for a given publisher id'''
     date = get_todays_date_formatted()
     name = get_publishers_name(publisher_id)
-    return name+'\'s' +' Daily Tracker '+date
+    return f'{name}\'s Daily Tracker {date}'
     
  
-def send_email(email_html: str,publisher_id:int): # TODO
-    """Send an email using AWS SES. requires AWS CLI?""" # TODO 
+def aws_send_email(email_html: str,publisher_id:int):
+    """Send the specified email HTML using AWS SES."""
     client = boto3.client("ses",
                            region_name="eu-west-2",
                            aws_access_key_id=os.getenv('ACCESS_KEY'),
@@ -247,16 +247,18 @@ def send_email(email_html: str,publisher_id:int): # TODO
 
 
 def send_email_to_publisher(publisher_id:int) -> None:
-    '''''' # TODO
+    '''Sends the update email to the specified author.'''
     html_body = generate_html_body(publisher_id)
     html_email = format_html_email(html_body)
-    send_email(html_email,publisher_id)
+    send_email_to_publisher(html_email,publisher_id)
 
 
 def send_email_to_all_publishers() -> None:
-    '''''' # TODO
+    '''Sends an email containing information about their tracked authors
+    to all publishers of the bookworm dashboard in our database.''' 
     publisher_ids = get_publisher_ids()
     for id in publisher_ids:
+
         try:
             send_email_to_publisher(id[0])
         except ClientError as e:
@@ -267,11 +269,9 @@ def send_email_to_all_publishers() -> None:
 
 
 def lambda_handler(event,context):
-    "handles" # TODO
+    "Lambda handler function allows AWS lambda to utilise the script." 
     send_email_to_all_publishers()
     
-
-
 
 if __name__ == "__main__":
     send_email_to_all_publishers()

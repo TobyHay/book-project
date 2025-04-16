@@ -93,9 +93,14 @@ venv/
 *.env
 *.tfvars
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
 .terraform.lock.hcl
 *.log
 .terraform.tfstate.*
 
 /data/
+
+
+### MOCK FILES  ###
+statistics_mock.py

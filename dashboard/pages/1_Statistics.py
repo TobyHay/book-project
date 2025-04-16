@@ -139,7 +139,7 @@ def plot_pie_book_ratings(df: pd.DataFrame) -> None:
                  names='rating',
                  values='count',
                  color='count',
-                 title='Proportion of Boook Ratings',
+                 title='Proportion of Book Ratings',
                  color_discrete_sequence=px.colors.sequential.Blues_r,
                  category_orders={'rating': rating_order})
 

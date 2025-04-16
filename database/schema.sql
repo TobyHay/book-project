@@ -63,3 +63,6 @@ VALUES ('Suzanne Collins', 'https://www.goodreads.com/author/show/153394.Suzanne
 
 INSERT INTO publisher (publisher_email, publisher_name)
 VALUES ('trainee.toby.hayman@sigmalabs.co.uk', 'Sigma Labs Publishing LTD');
+
+INSERT INTO author_assignment (author_id, publisher_id) 
+VALUES (1, 1); 

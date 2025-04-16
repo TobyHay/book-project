@@ -1,9 +1,2 @@
+INFO:root:PASSED: Valid URL check - https://www.goodreads.com/author/show/1077326.J_K_Rowling
 INFO:root:PASSED: Valid URL check - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien
-INFO:root:PASSED: Author not in system - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien
-INFO:root:FAILED: Pipeline - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien
-INFO:root:PASSED: Valid URL check - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien
-INFO:root:PASSED: Author not in system - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien
-INFO:root:FAILED: Pipeline - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien
-INFO:root:PASSED: Valid URL check - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien
-INFO:root:PASSED: Author not in system - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien
-INFO:root:FAILED: Pipeline - https://www.goodreads.com/author/show/656983.J_R_R_Tolkien

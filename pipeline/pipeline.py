@@ -8,7 +8,7 @@ import logging
 import psycopg2
 import pandas as pd
 from dotenv import load_dotenv
-from extract import get_author_data
+from extract import get_author_data, ScrapingError
 from transform import clean_authors_info
 from load import connect_to_database, load_to_database, COLUMN_NAMES_IN_TABLES
 
@@ -32,15 +32,17 @@ def get_author_urls(conn: psycopg2.connect) -> list[str]:
 
 def run_pipeline(author_url: str, conn: psycopg2.connect, log: logging.Logger) -> None:
     """Runs main script where data is extracted, cleaned and uploaded to the database"""
+    try:
+        raw_author_data = get_author_data(author_url)
+        log.info("Successfully extracted author data")
 
-    raw_author_data = get_author_data(author_url)
-    log.info("Successfully extracted author data")
+        cleaned_author = clean_authors_info([raw_author_data], log)
 
-    cleaned_author = clean_authors_info([raw_author_data], log)
-
-    load_to_database(
-        cleaned_author, conn, COLUMN_NAMES_IN_TABLES)
-    log.info("Successfully loaded data into the database.")
+        load_to_database(
+            cleaned_author, conn, COLUMN_NAMES_IN_TABLES)
+        log.info("Successfully loaded data into the database.")
+    except ScrapingError as e:
+        log.error(f"Unable to scrape data for {author_url}.")
 
 
 def handler(event=None, context=None) -> dict:

@@ -194,16 +194,9 @@ def plot_line_avg_ratings_over_time(book: str, df: pd.DataFrame) -> None:
     st.plotly_chart(fig)
 
 
-def plot_bar_books_per_author() -> None:
+def plot_bar_books_per_author(df: pd.DataFrame) -> None:
     '''Plots bar chart which counts each author's published books'''
 
-    # Mock Data
-    data = {
-        'author': ['J.K. Rowling', 'George R.R. Martin', 'J.R.R. Tolkien', 'Agatha Christie', 'Stephen King',
-                   'Isaac Asimov', 'Margaret Atwood', 'Haruki Murakami', 'Dan Brown', 'J.D. Salinger'],
-        'books': [7, 5, 4, 12, 21, 20, 12, 15, 25, 1]}
-
-    df = pd.DataFrame(data)
     fig = px.bar(df,
                  x='author',
                  y='books',
@@ -234,10 +227,11 @@ if __name__ == "__main__":
 
     with left2:
         plot_line_ratings_over_time(book, author_books)
-        # st.write("Top authors of the week:") TOP AUTHORS OF THE WEEK
-        # plot_bar_books_per_author()
 
     with right2:
-        # Summary Stats
+
         plot_line_avg_ratings_over_time(book, author_books)
-        # TODO What happens with too many authors (what about top 10?)
+
+    st.write("Top authors of the week:")
+
+    plot_bar_books_per_author()

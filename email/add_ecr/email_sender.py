@@ -170,32 +170,16 @@ def generate_author_html_container(author_id:int) -> str:
     daily_shelved = get_shelved_difference_from_yesterday(author_id)
     avg_rating_change = get_avg_rating_difference_since_yesterday(author_id)
     container_html = f'''
-            <tr>
-              <td align="left" valign="top" width="150" style="padding: 10px;">
-                <img src="https://images.gr-assets.com/authors/1630199330p5/153394.jpg" width="100" alt="A picture of the author_name" style="display: block; border-radius: 5px;">
-              </td>
-              <td align="left" valign="top" style="padding: 10px; font-family: Arial, sans-serif;">
-                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #2c3e50;">Suzanne Collins's Engagement</h3>
-                <p style="margin: 0; font-size: 14px; color: #555;">
-                  <strong>Daily Shelved:</strong> No historical data for this author yet.<br> 
-                  <strong>Avg Rating Change:</strong> No historical data for this author yet.
-                </p>
-              </td>
-            </tr>
-
-
-
         <table width="100%" border="0" cellspacing="0" cellpadding="0"> 
           <tr>
             <td align="left" valign="top" width="150" style="padding: 10px;">
-              <img src="{image_url}" width="150" alt="A picture of the author_name" style="display: block;">
+              <img src="{image_url}" width="150" alt="A picture of the author_name" style="display: block; border-radius: 5px;">
             </td>
-            <td align="left" valign="top" style="padding: 10px; font-family: Arial;">
-              <h3 style="margin: 0;">{author_name}'s engagement:</h3>
-              <p style="margin:5px 0 0 0;">
-              Daily Shelved: {daily_shelved} 
-              <br> 
-              Avg Rating Change: {avg_rating_change}
+              <td align="left" valign="top" style="padding: 10px; font-family: Arial, sans-serif;">
+              <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #2c3e50;">{author_name}'s engagement:</h3>
+              <p style="margin: 0; font-size: 14px; color: #555;"><p style="margin:5px 0 0 0;">
+              <strong>Daily Shelved:</strong> {daily_shelved} <br> 
+              <strong>Avg Rating Change:</strong> {avg_rating_change}
               </p>
             </td>
           </tr>

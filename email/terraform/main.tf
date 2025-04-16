@@ -68,6 +68,30 @@ resource "aws_vpc_security_group_ingress_rule" "allow_access_to_database" {
   ip_protocol = "tcp" 
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_access_to_database_ipv6" {
+  security_group_id = aws_security_group.c16-book-project-sg.id
+  cidr_ipv6 = "::/0"
+  from_port = tonumber((var.DB_PORT))
+  to_port = tonumber((var.DB_PORT))
+  ip_protocol = "tcp" 
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_access_to_database" {
+  security_group_id = aws_security_group.c16-book-project-sg.id
+  cidr_ipv4 = "0.0.0.0/0"
+  from_port = tonumber(var.DB_PORT)
+  to_port = tonumber(var.DB_PORT)
+  ip_protocol = "tcp" 
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_access_to_database_ipv6_out" {
+  security_group_id = aws_security_group.c16-book-project-sg.id
+  cidr_ipv6 = "::/0"
+  from_port = tonumber((var.DB_PORT))
+  to_port = tonumber((var.DB_PORT))
+  ip_protocol = "tcp" 
+}
+
 resource "aws_vpc_security_group_egress_rule" "allow_access_to_send_emails_ipv6" {
   security_group_id = aws_security_group.c16-book-project-sg.id
   cidr_ipv6 = "::/0"
@@ -169,7 +193,7 @@ resource "aws_lambda_function" "c16-book-project-write-to-rds-lg" {
   image_uri    = "${var.image_uri_for_lambda_function_1}:latest"
   role = aws_iam_role.iam_for_lambda_book_project.arn
 
-  timeout      = 15
+  timeout      = 900
   memory_size  = 128
 
   vpc_config {
@@ -180,7 +204,7 @@ resource "aws_lambda_function" "c16-book-project-write-to-rds-lg" {
   environment {
     variables = {
       DB_HOST     = var.DB_HOST
-      DB_USER     = var.DB_USERNAME
+      DB_USERNAME     = var.DB_USERNAME
       DB_PASSWORD = var.DB_PASSWORD
       DB_NAME     = var.DB_NAME
       DB_PORT = var.DB_PORT
@@ -204,7 +228,7 @@ resource "aws_lambda_function" "c16-book-project-create-email-lg" {
   image_uri    = "${var.image_uri_for_lambda_function_2}:latest"
   role = aws_iam_role.iam_for_lambda_book_project.arn
 
-  timeout      = 15
+  timeout      = 900
   memory_size  = 128
 
   vpc_config {
@@ -215,7 +239,7 @@ resource "aws_lambda_function" "c16-book-project-create-email-lg" {
   environment {
     variables = {
       DB_HOST     = var.DB_HOST
-      DB_USER     = var.DB_USERNAME
+      DB_USERNAME     = var.DB_USERNAME
       DB_PASSWORD = var.DB_PASSWORD
       DB_NAME     = var.DB_NAME
       DB_PORT = var.DB_PORT

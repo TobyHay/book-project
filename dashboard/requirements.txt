@@ -1,8 +1,6 @@
 streamlit
 pandas
-streamlit
 requests
-altair
 psycopg2
 logging
 bs4
@@ -10,6 +8,4 @@ pytest
 pylint
 plotly
 lxml
-time
-urllib.request
 python-dotenv

@@ -77,37 +77,13 @@ def get_database_books_by_author(author_id_for_books: int,
     return books_df.to_dict(orient='records')
 
 
-def is_new_author(author: dict, database_author: dict) -> bool:
-    """Returns a boolean of True if an author is new (not in the database), 
-    otherwise false"""
-    if author['author_name'] != database_author['author_name'] and \
-            author['author_url'] != database_author['author_url']:
+def author_match(author: dict, database_author: dict) -> bool:
+    """Compares the current author to the selected author from the database
+    and returns True if they have the same author url"""
+
+    if author['author_url'] == database_author['author_url']:
         return True
     return False
-
-
-def update_image_url_of_author(authors_to_be_updated: list[dict],
-                               conn: psycopg2.connect) -> None:
-    """Updates an existing author with the new author image url"""
-    for author in authors_to_be_updated:
-        author_id = get_author_id(author, conn)
-        author['author_id'] = author_id
-
-    cursor = conn.cursor()
-    query = """UPDATE author
-            SET author_image_url = %s
-            WHERE author_id = %s;"""
-    authors_to_be_updated = format_values_to_upload(
-        authors_to_be_updated, ['author_image_url', 'author_id'])
-
-    try:
-        cursor.executemany(
-            query, authors_to_be_updated)
-        conn.commit()
-    except Exception as err:
-        print(err)
-    finally:
-        cursor.close()
 
 
 def get_new_authors_or_books(new_values: list[dict],
@@ -122,21 +98,14 @@ def get_new_authors_or_books(new_values: list[dict],
         return [new_book for new_book in new_values
                 if new_book not in database_values]
 
-    update_authors = []
     new_authors = []
     for author in new_values:
+        is_new = True
         for i, database_author in enumerate(database_values):
-            if not is_new_author(author, database_author) and \
-                    author['author_image_url'] != database_author['author_image_url']:
-                update_authors.append(author)
-
-            if is_new_author(author, database_author) and \
-                    author not in update_authors and i == len(database_values)-1:
-                new_authors.append(author)
-
-    if update_authors:
-        update_image_url_of_author(update_authors, conn)
-
+            if author_match(author, database_author):
+                is_new = False
+        if is_new:
+            new_authors.append(author)
     return new_authors
 
 
@@ -320,7 +289,7 @@ def main() -> None:
     author_list = \
         [{'author_name': 'Suzanne Collins',
           'author_url':
-            'https://www.goodreads.com/author/show/153394.Suzanne_Collins',
+            'https://www.goodreads.com/author/show/153394',
           'average_rating': 4.28,
           'rating_count': 18603497,
           'review_count': 716574,

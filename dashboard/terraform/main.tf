@@ -58,6 +58,38 @@ resource "aws_vpc_security_group_ingress_rule" "read_from_database_ipv6" {
     ip_protocol = "tcp"
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_access_to_dashboard_ipv4" {
+    security_group_id = aws_security_group.c16-book-project-dashboard-sg.id
+    cidr_ipv4 = "0.0.0.0/0"
+    from_port = 8501
+    to_port = 8501
+    ip_protocol = "tcp"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_access_to_dashboard_ipv6" {
+  security_group_id = aws_security_group.c16-book-project-dashboard-sg.id
+  cidr_ipv6 = "::/0"
+  from_port = 8501
+  to_port = 8501
+  ip_protocol = "tcp" 
+}
+
+resource "aws_vpc_security_group_egress_rule" "read_from_database_ipv4" {
+    security_group_id = aws_security_group.c16-book-project-dashboard-sg.id
+    cidr_ipv4 = "0.0.0.0/0"
+    from_port = tonumber(var.DB_PORT)
+    to_port = tonumber(var.DB_PORT)
+    ip_protocol = "tcp"
+}
+
+resource "aws_vpc_security_group_egress_rule" "read_from_database_ipv6" {
+    security_group_id = aws_security_group.c16-book-project-dashboard-sg.id
+    cidr_ipv6 = "::/0"
+    from_port = tonumber(var.DB_PORT)
+    to_port = tonumber(var.DB_PORT)
+    ip_protocol = "tcp"
+}
+
 resource "aws_vpc_security_group_egress_rule" "allow_access_to_dashboard_ipv4" {
     security_group_id = aws_security_group.c16-book-project-dashboard-sg.id
     cidr_ipv4 = "0.0.0.0/0"
@@ -118,7 +150,6 @@ resource "aws_ecs_task_definition" "c16-book-project-dashboard-td" {
         name      = var.ecs_name
         image     = var.image_uri_for_dashboard
         essential = true
-        command = ["python3", "dashboard.py"]
         environment = [
             {
                 name = "DB_HOST"
@@ -142,8 +173,8 @@ resource "aws_ecs_task_definition" "c16-book-project-dashboard-td" {
             }]
         portMappings = [
             {
-            containerPort = tonumber(var.DB_PORT)
-            hostPort      = tonumber(var.DB_PORT)
+            containerPort = 8501
+            hostPort      = 8501
             }
         ]
         logConfiguration = {

@@ -7,6 +7,8 @@ import streamlit as st
 import psycopg2
 import plotly.express as px
 
+
+st.set_page_config(layout="wide")
 load_dotenv()
 
 
@@ -191,7 +193,13 @@ def plot_bar_books_per_author() -> None:
 
 
 if __name__ == "__main__":
-    st.set_page_config(layout="wide")
+    col1, col2 = st.columns([10, 2])
+
+    with col1:
+        st.title(":chart_with_upwards_trend: Statistics and Visualisations ")
+    with col2:
+        st.image("../assets/bookworm_logo_with_words.jpeg", width=500)
+    
     conn = connect_to_database()
 
     authors = get_authors(conn)

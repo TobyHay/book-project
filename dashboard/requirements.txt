@@ -2,7 +2,6 @@ streamlit
 pandas
 requests
 psycopg2
-logging
 bs4
 pytest
 pylint

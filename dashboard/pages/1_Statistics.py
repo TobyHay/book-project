@@ -194,19 +194,6 @@ def plot_line_avg_ratings_over_time(book: str, df: pd.DataFrame) -> None:
     st.plotly_chart(fig)
 
 
-def plot_bar_books_per_author(df: pd.DataFrame) -> None:
-    '''Plots bar chart which counts each author's published books'''
-
-    fig = px.bar(df,
-                 x='author',
-                 y='books',
-                 title='Books Published Per Author',
-                 labels={'author': 'Author', 'books': 'Number of Books'},
-                 color='books')
-
-    st.plotly_chart(fig)
-
-
 if __name__ == "__main__":
     st.set_page_config(layout="wide")
     conn = connect_to_database()
@@ -231,7 +218,3 @@ if __name__ == "__main__":
     with right2:
 
         plot_line_avg_ratings_over_time(book, author_books)
-
-    st.write("Top authors of the week:")
-
-    plot_bar_books_per_author()

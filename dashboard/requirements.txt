@@ -1,6 +1,5 @@
 streamlit
 pandas
-streamlit
 requests
 altair
 psycopg2
@@ -10,5 +9,4 @@ pytest
 pylint
 plotly
 lxml
-urllib.request
 python-dotenv

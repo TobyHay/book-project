@@ -147,13 +147,37 @@ def plot_pie_book_ratings(df: pd.DataFrame) -> None:
 
 
 def plot_line_ratings_over_time(book: str, df: pd.DataFrame) -> None:
-    '''Plots line graph for Author's Daily & Average Ratings over time'''
+    '''Plots line graph for Author's Daily over time'''
 
     df_book = df.loc[df['book_title'] == book]
 
     fig = px.line(df_book,
                   x='date_recorded',
-                  y=['rating_count', 'average_rating'],
+                  y='rating_count',
+                  title="Ratings Over Time",
+                  labels={'date_recorded': 'Date'})
+
+    fig.update_traces(name='Daily Rating', selector=dict(name='daily_rating'))
+    fig.update_traces(name='Average Rating',
+                      selector=dict(name='average_rating'))
+
+    fig.update_layout(
+        legend=dict(
+            orientation='h',
+            y=1.15,
+            title=None))
+
+    st.plotly_chart(fig)
+
+
+def plot_line_avg_ratings_over_time(book: str, df: pd.DataFrame) -> None:
+    '''Plots line graph for Author's Average Ratings over time'''
+
+    df_book = df.loc[df['book_title'] == book]
+
+    fig = px.line(df_book,
+                  x='date_recorded',
+                  y='average_rating',
                   title="Ratings Over Time",
                   labels={'date_recorded': 'Date'})
 
@@ -205,14 +229,15 @@ if __name__ == "__main__":
         plot_line_shelved_count_over_time(author_data)
     with right1:
         plot_pie_book_ratings(author_books)
-
+    book = select_book(selected_author, author_books)
     left2, right2 = st.columns(2)
+
     with left2:
-        book = select_book(selected_author, author_books)
         plot_line_ratings_over_time(book, author_books)
+        # st.write("Top authors of the week:") TOP AUTHORS OF THE WEEK
+        # plot_bar_books_per_author()
+
     with right2:
         # Summary Stats
-        st.write("Top authors of the week:")
-
-        plot_bar_books_per_author()
+        plot_line_avg_ratings_over_time(book, author_books)
         # TODO What happens with too many authors (what about top 10?)

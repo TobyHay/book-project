@@ -99,3 +99,7 @@ venv/
 .terraform.tfstate.*
 
 /data/
+
+
+### MOCK FILES  ###
+statistics_mock.py

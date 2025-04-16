@@ -77,13 +77,12 @@ def get_database_books_by_author(author_id_for_books: int,
     return books_df.to_dict(orient='records')
 
 
-def is_new_author(author: dict, database_author: dict) -> bool:
+def author_match(author: dict, database_author: dict) -> bool:
     """Returns a boolean of True if an author is new (not in the database), 
     otherwise false"""
-    if author['author_name'] != database_author['author_name'] and \
-            author['author_url'] != database_author['author_url']:
-        return True
-    return False
+    if author['author_url'] != database_author['author_url']:
+        return False
+    return True
 
 
 def update_image_url_of_author(authors_to_be_updated: list[dict],
@@ -125,18 +124,12 @@ def get_new_authors_or_books(new_values: list[dict],
     update_authors = []
     new_authors = []
     for author in new_values:
+        is_new = True
         for i, database_author in enumerate(database_values):
-            if not is_new_author(author, database_author) and \
-                    author['author_image_url'] != database_author['author_image_url']:
-                update_authors.append(author)
-
-            if is_new_author(author, database_author) and \
-                    author not in update_authors and i == len(database_values)-1:
-                new_authors.append(author)
-
-    if update_authors:
-        update_image_url_of_author(update_authors, conn)
-
+            if author_match(author, database_author):
+                is_new = False
+        if is_new:
+            new_authors.append(author)
     return new_authors
 
 
@@ -320,7 +313,7 @@ def main() -> None:
     author_list = \
         [{'author_name': 'Suzanne Collins',
           'author_url':
-            'https://www.goodreads.com/author/show/153394.Suzanne_Collins',
+            'https://www.goodreads.com/author/show/153394',
           'average_rating': 4.28,
           'rating_count': 18603497,
           'review_count': 716574,

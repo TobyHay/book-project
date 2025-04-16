@@ -59,7 +59,7 @@ CREATE TABLE book_measurement (
 );
 
 INSERT INTO author (author_name, author_url, author_image_url)
-VALUES ('Suzanne Collins', 'https://www.goodreads.com/author/show/153394.Suzanne_Collins', 'https://images.gr-assets.com/authors/1630199330p5/153394.jpg');
+VALUES ('Suzanne Collins', 'https://www.goodreads.com/author/show/153394', 'https://images.gr-assets.com/authors/1630199330p5/153394.jpg');
 
 INSERT INTO publisher (publisher_email, publisher_name)
 VALUES ('trainee.toby.hayman@sigmalabs.co.uk', 'Sigma Labs Publishing LTD');

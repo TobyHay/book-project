@@ -78,35 +78,12 @@ def get_database_books_by_author(author_id_for_books: int,
 
 
 def author_match(author: dict, database_author: dict) -> bool:
-    """Returns a boolean of True if an author is new (not in the database), 
-    otherwise false"""
-    if author['author_url'] != database_author['author_url']:
-        return False
-    return True
+    """Compares the current author to the selected author from the database
+    and returns True if they have the same author url"""
 
-
-def update_image_url_of_author(authors_to_be_updated: list[dict],
-                               conn: psycopg2.connect) -> None:
-    """Updates an existing author with the new author image url"""
-    for author in authors_to_be_updated:
-        author_id = get_author_id(author, conn)
-        author['author_id'] = author_id
-
-    cursor = conn.cursor()
-    query = """UPDATE author
-            SET author_image_url = %s
-            WHERE author_id = %s;"""
-    authors_to_be_updated = format_values_to_upload(
-        authors_to_be_updated, ['author_image_url', 'author_id'])
-
-    try:
-        cursor.executemany(
-            query, authors_to_be_updated)
-        conn.commit()
-    except Exception as err:
-        print(err)
-    finally:
-        cursor.close()
+    if author['author_url'] == database_author['author_url']:
+        return True
+    return False
 
 
 def get_new_authors_or_books(new_values: list[dict],
@@ -121,7 +98,6 @@ def get_new_authors_or_books(new_values: list[dict],
         return [new_book for new_book in new_values
                 if new_book not in database_values]
 
-    update_authors = []
     new_authors = []
     for author in new_values:
         is_new = True

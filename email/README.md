@@ -96,10 +96,7 @@ ACCESS_KEY=
 SECRET_KEY=
 ```
 
+2. Follow the steps on [here](https://docs.aws.amazon.com/lambda/latest/dg/python-image.html#python-image-instructions) to dockerise the python script, making sure to use the ` --env-file .env` flag for docker build.
 
-2. 
-
-3. Follow the steps on [here](https://docs.aws.amazon.com/lambda/latest/dg/python-image.html#python-image-instructions) to dockerise the python script.
-
-4. Follow the push commands on the AWS console for the relevant ECR repository
+3. Follow the push commands on the AWS console for the relevant ECR repository
 

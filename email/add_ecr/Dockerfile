@@ -4,10 +4,10 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 
 EXPOSE 5432
 
-COPY email_sender.py "${LAMBDA_TASK_ROOT}"
+COPY email_sender.py .
 
-COPY requirements.txt "${LAMBDA_TASK_ROOT}"
+COPY requirements.txt .
 
-RUN pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+RUN pip3 install -r requirements.txt --target .
 
 CMD [ "email_sender.lambda_handler" ]

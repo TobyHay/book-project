@@ -23,20 +23,20 @@ def get_db_connection() -> psycopg2.extensions.connection:
 
 
 def get_publishers_tracked_authors(publisher_id: int) -> list[tuple]:
-    '''Gets all publishers  and their tracked authors from the DB'''
+    '''Gets all publishers and their tracked authors from the DB'''
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        sql = f'''
+        sql = '''
             SELECT 
             a.author_id
             FROM publisher as p
             LEFT JOIN author_assignment AS aa ON aa.publisher_id = p.publisher_id
             LEFT JOIN author AS a ON a.author_id = aa.author_id
-            where p.publisher_id = {publisher_id}
+            where p.publisher_id = %s
             ;
             '''
-        cur.execute(sql)
+        cur.execute(sql, (publisher_id,))
         return cur.fetchall()
     finally:
         conn.close()
@@ -47,7 +47,7 @@ def get_publisher_ids() -> list[tuple]:
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        sql = f'''
+        sql = '''
             SELECT 
             publisher_id
             FROM publisher
@@ -64,14 +64,14 @@ def get_publishers_name(publisher_id: int) -> str:
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        sql = f'''
+        sql = '''
             SELECT 
             publisher_name
             FROM publisher
-            WHERE publisher_id = {publisher_id}
+            WHERE publisher_id = %s
             ;
             '''
-        cur.execute(sql)
+        cur.execute(sql, (publisher_id,))
         return cur.fetchone()[0]
     finally:
         conn.close()
@@ -82,36 +82,36 @@ def get_publishers_email(publisher_id: int) -> str:
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        sql = f'''
+        sql = '''
             SELECT 
             publisher_email
             FROM publisher
-            WHERE publisher_id = {publisher_id}
+            WHERE publisher_id = %s
             ;
             '''
-        cur.execute(sql)
+        cur.execute(sql, (publisher_id,))
         return cur.fetchone()[0]
     finally:
         conn.close()
 
 
-def get_avg_rating_difference_since_yesterday(author_id) -> int:
+def get_avg_rating_difference_since_yesterday(author_id: int) -> int:
     '''gets ratings since yesterday for a given author_id'''
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        sql = f'''
+        sql = '''
             SELECT 
             average_rating - LAG(average_rating) OVER (
                 ORDER BY am.date_recorded DESC) avg_change_since_yesterday
             FROM author AS a
             JOIN author_measurement AS am ON a.author_id = am.author_id
-            WHERE am.author_id = {author_id}
+            WHERE am.author_id = %s
             ORDER BY am.date_recorded DESC
             LIMIT 2
             ;
             '''
-        cur.execute(sql)
+        cur.execute(sql, (author_id,))
         rating_change = cur.fetchall()
         if not rating_change:
             return 'No historical data for this author yet.'
@@ -120,23 +120,23 @@ def get_avg_rating_difference_since_yesterday(author_id) -> int:
         conn.close()
 
 
-def get_shelved_difference_from_yesterday(author_id) -> int:
+def get_shelved_difference_from_yesterday(author_id: int) -> int:
     '''gets shelved increase since yesterday for a given author_id'''
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        sql = f'''
+        sql = '''
             SELECT 
             shelved_count - LAG(shelved_count) OVER (
                 ORDER BY am.date_recorded DESC) shelved_increase_since_yesterday
             FROM author AS a
             JOIN author_measurement AS am ON a.author_id = am.author_id
-            WHERE am.author_id = {author_id}
+            WHERE am.author_id = %s
             ORDER BY am.date_recorded DESC
             LIMIT 2
             ;
             '''
-        cur.execute(sql)
+        cur.execute(sql, (author_id,))
         shelved_change = cur.fetchall()
         if not shelved_change:
             return 'No historical data for this author yet.'
@@ -155,12 +155,12 @@ def get_author_info(author_id: int) -> str:
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        sql = f'''
+        sql = '''
         SELECT author_name, author_image_url
         FROM author
-        WHERE author_id = {author_id}
+        WHERE author_id = %s
         '''
-        cur.execute(sql)
+        cur.execute(sql, (author_id,))
         author_name, image_url = cur.fetchone()
         return author_name, image_url
     finally:
@@ -191,7 +191,7 @@ def generate_author_html_container(author_id: int) -> str:
     return container_html
 
 
-def generate_html_head():
+def generate_html_head() -> str:
     '''Generates the html head for the email'''
     html = '''
     <head>
@@ -210,7 +210,6 @@ def generate_html_body(publisher_id: int) -> str:
         raise ValueError('No valid publisher for the given id.')
 
     author_ids = get_publishers_tracked_authors(publisher_id)
-    author_ids = [(1,)]
     if not author_ids:
         html = f'''<body style="font-family: 'Poppins', Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333333; line-height: 1.5;"> 
         Dear {publisher_name}, 
@@ -248,7 +247,7 @@ def get_email_subject(publisher_id: int) -> str:
     return f'{name}\'s Daily Tracker {date}'
 
 
-def aws_send_email(email_html: str, publisher_id: int):
+def aws_send_email(email_html: str, publisher_id: int) -> None:
     """Send the specified email HTML using AWS SES."""
     client = boto3.client("ses",
                           region_name="eu-west-2",
@@ -282,7 +281,6 @@ def send_email_to_all_publishers() -> None:
     to all publishers of the bookworm dashboard in our database.'''
     publisher_ids = get_publisher_ids()
     for id in publisher_ids:
-        print(id)
         try:
             send_email_to_publisher(id[0])
         except ClientError as e:
@@ -292,7 +290,7 @@ def send_email_to_all_publishers() -> None:
                 raise e
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: None, context: None) -> None:
     "Lambda handler function allows AWS lambda to utilise the script."
     send_email_to_all_publishers()
 

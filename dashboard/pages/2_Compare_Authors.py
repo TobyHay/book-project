@@ -101,8 +101,8 @@ def get_change_in_shelved_count(author_name: str, conn: psycopg2.connect) -> pd.
             return df
 
         df['daily_change'] = df['shelved_count'].diff().fillna(
-            0)  # Calculate difference
-        df['author_name'] = author_name  # Add author name for plotting
+            0) 
+        df['author_name'] = author_name 
 
         return df[['date_recorded', 'daily_change', 'author_name']]
     except Exception as e:

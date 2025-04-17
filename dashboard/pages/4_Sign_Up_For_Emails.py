@@ -181,7 +181,7 @@ def remove_author_assignment_query(publisher_email_removal_input, conn):
     
 
 def publisher_removal_form(conn: psycopg2.connect) -> None:
-    st.write("""Please the email that you would like to remove from the mailing list.""")
+    st.write("""Please enter the email that you would like to remove from the mailing list:""")
 
     publisher_email_removal_input = st.text_input(
     "Email to remove from mailing list:", key="Publisher email removal input")

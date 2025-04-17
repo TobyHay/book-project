@@ -36,7 +36,7 @@ def select_author(authors: pd.DataFrame) -> str:
     author_names = authors['author_name']
 
     selected_author = st.selectbox(
-        "Select an author to see long-term shelved count and rating analytics", author_names)
+        "Select an author to see long-term shelved count and rating analytics: ", author_names)
     return selected_author
 
 
@@ -88,7 +88,7 @@ def select_book(author_name: str, books: pd.DataFrame) -> str:
     book_titles = unique_books['book_title']
 
     selected_book = st.selectbox(
-        f"Select a book from {author_name} for ratings over time", book_titles)
+        f"Select a book from {author_name} for ratings over time and average rating visualisations:", book_titles)
     return selected_book
 
 
@@ -159,8 +159,8 @@ def plot_line_ratings_over_time(book: str, df: pd.DataFrame) -> None:
     fig = px.line(df_book,
                   x='date_recorded',
                   y='rating_count',
-                  title="Ratings Over Time",
-                  labels={'date_recorded': 'Date'})
+                  title="Rating Count Over Time",
+                  labels={'date_recorded': 'Date', 'rating_count': 'Rating Count'})
 
     fig.update_traces(name='Daily Rating', selector=dict(name='daily_rating'))
     fig.update_traces(name='Average Rating',
@@ -183,8 +183,8 @@ def plot_line_avg_ratings_over_time(book: str, df: pd.DataFrame) -> None:
     fig = px.line(df_book,
                   x='date_recorded',
                   y='average_rating',
-                  title="Ratings Over Time",
-                  labels={'date_recorded': 'Date'})
+                  title="Average Rating Over Time",
+                  labels={'date_recorded': 'Date', 'average_rating': 'Average Rating'})
 
     fig.update_traces(name='Daily Rating', selector=dict(name='daily_rating'))
     fig.update_traces(name='Average Rating',

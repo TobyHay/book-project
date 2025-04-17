@@ -168,7 +168,7 @@ def get_author_info(author_id: int) -> str:
 
 
 def generate_author_html_container(author_id: int) -> str:
-    ''''''
+    '''Generates a html table containing an author'''
     author_name, image_url = get_author_info(author_id)
     daily_shelved = get_shelved_difference_from_yesterday(author_id)
     avg_rating_change = get_avg_rating_difference_since_yesterday(author_id)
@@ -192,6 +192,7 @@ def generate_author_html_container(author_id: int) -> str:
 
 
 def generate_html_head():
+    '''Generates the html head for the email'''
     html = '''
     <head>
     <meta charset="UTF-8">
@@ -271,8 +272,9 @@ def aws_send_email(email_html: str, publisher_id: int):
 def send_email_to_publisher(publisher_id: int) -> None:
     '''Sends the update email to the specified author.'''
     html_body = generate_html_body(publisher_id)
-    html_email = format_html_email(html_body)
-    send_email_to_publisher(html_email, publisher_id)
+    html_head = generate_html_head()
+    html_email = format_html_email(html_head, html_body)
+    aws_send_email(html_email, publisher_id)
 
 
 def send_email_to_all_publishers() -> None:
@@ -280,7 +282,7 @@ def send_email_to_all_publishers() -> None:
     to all publishers of the bookworm dashboard in our database.'''
     publisher_ids = get_publisher_ids()
     for id in publisher_ids:
-
+        print(id)
         try:
             send_email_to_publisher(id[0])
         except ClientError as e:
@@ -296,6 +298,7 @@ def lambda_handler(event, context):
 
 
 def save_test_html(publisher_id: int) -> None:
+    '''Saves the HTML to a file for convenient local testing.'''
     html_body = generate_html_body(publisher_id)
     html_head = generate_html_head()
     html_email = format_html_email(html_head, html_body)
@@ -304,6 +307,5 @@ def save_test_html(publisher_id: int) -> None:
 
 
 if __name__ == "__main__":
-    # send_email_to_all_publishers()
-
     save_test_html(1)
+    send_email_to_all_publishers()

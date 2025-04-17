@@ -15,4 +15,4 @@ COPY pages/4_Sign_Up_For_Emails.py ./pages
 
 EXPOSE 8501
 
-CMD python -m streamlit run welcome.py
+CMD python -m streamlit run Welcome.py

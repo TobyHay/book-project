@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 run mkdir ./pages
-COPY welcome.py .
+COPY Welcome.py .
 COPY pages/1_Statistics.py ./pages
 COPY pages/2_Compare_Authors.py ./pages
 COPY pages/3_Add_Authors.py ./pages

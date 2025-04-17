@@ -113,6 +113,7 @@ def get_avg_rating_difference_since_yesterday(author_id: int) -> int:
             '''
         cur.execute(sql, (author_id,))
         rating_change = cur.fetchall()
+        print(rating_change, 'here')
         if not rating_change:
             return 'No historical data for this author yet.'
         return rating_change[1][0]

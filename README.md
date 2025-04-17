@@ -41,4 +41,4 @@ These files create automated actions on any python scripts within a pull request
 
 # Architecture Diagram
 
-![Architecture Diagram](assets/architecture_diagram.png)
+![Architecture Diagram](assets/architecture_diagram_books.png)

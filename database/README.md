@@ -36,4 +36,4 @@ We have carefully specified column datatypes to meet the minimum requirements of
 efficiently as possible without sacrificing functionality. 
 
 Entity Relationship Diagram:
-![Entity Relationship Diagram](../assets/entity_relationship_diagram.png)
+![Entity Relationship Diagram](../assets/erd.png)

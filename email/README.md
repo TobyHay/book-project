@@ -4,6 +4,7 @@ Contains sub-folders:
 
 * terraform/
 * add_ecr/
+* email_script/
 
 # Terraform
 
@@ -69,18 +70,32 @@ This is an example folder for deploying a lambda script to AWS ECR. Two folders 
 
 * `Dockerfile` - which includes the commands required to convert the lambda function script into a Docker image
 
-* `placeholder_image_for_ecr.py` - which is the lambda script to be converted into a Docker image.
+* `email_sender.py` - which is the lambda script to be converted into a Docker image.
+
+
+## IMPORTANT
+
+- NOTE: YOUR ACCOUNT MUST BE EXITED FROM SANDBOX MODE IN ORDER TO SEND EMAILS THAT ARE NOT VERIFIED ON YOUR AWS. TO EXIT SANDBOX FOLLOW: https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html?icmpid=docs_ses_console 
 
 
 ## Get started <a name="dockerise_image"></a>
 
 To set up the ECR repository with the lambda Docker image, carry out the following steps after carrying out steps 1 and 2 from the terraform section:
 
-1. Replace the `placeholder_image_for_ecr.py` placeholder script with your lambda script
 
-2. Replace `placeholder_image_for_ecr` in the `Dockerfile` on line 5 and 9 with the name of your script.
+1. Set up a .env of format:
 
-3. Follow the steps on [here](https://docs.aws.amazon.com/lambda/latest/dg/python-image.html#python-image-instructions) to dockerise the python script.
+```
+DB_USERNAME=
+DB_PASSWORD=
+DB_PORT=
+DB_NAME=
+DB_HOST=
+ACCESS_KEY=
+SECRET_KEY=
+```
 
-4. Follow the push commands on the AWS console for the relevant ECR repository
+2. Follow the steps on [here](https://docs.aws.amazon.com/lambda/latest/dg/python-image.html#python-image-instructions) to dockerise the python script, making sure to use the ` --env-file .env` flag for docker build.
+
+3. Follow the push commands on the AWS console for the relevant ECR repository
 

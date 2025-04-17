@@ -18,3 +18,8 @@ DB_PORT=
 DB_NAME=
 DB_HOST=
 ```
+
+
+# Mock data:
+
+The mock data is used to populate the dashboard, allowing for a demonstration of how the visuals and statistics will appear.

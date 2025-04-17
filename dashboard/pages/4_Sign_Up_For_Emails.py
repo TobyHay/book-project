@@ -220,7 +220,7 @@ def streamlit(conn):
     with col1:
         st.title(":envelope_with_arrow: Sign Up For Emails")
     with col2:
-        st.image("../assets/bookworm_logo_with_words.jpeg", width=500)
+        st.image("../assets/bookworm_logo.jpeg", width=500)
 
     
 

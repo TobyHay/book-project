@@ -206,7 +206,7 @@ if __name__ == "__main__":
         with col1:
             st.title(":chart_with_upwards_trend: Statistics and Visualisations ")
         with col2:
-            st.image("../assets/bookworm_logo_with_words.jpeg", width=500)
+            st.image("../assets/bookworm_logo.jpeg", width=500)
 
         conn = connect_to_database()
 

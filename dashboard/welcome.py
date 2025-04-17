@@ -358,26 +358,13 @@ def streamlit(conn, logger) -> None:
         st.title(":books: Publisher Dashboard - Author Tracker!")
         
     with col2:
-        st.image("../assets/bookworm_logo_with_words.jpeg", width=500)
+        st.image("../assets/bookworm_logo.jpeg", width=500)
 
 
     st.write("Welcome to the Publisher Dashboard! On this page, you'll be able to request authors to be tracked and submit email report preferences.")
     st.write("On the next page, summary statistics for some of our most popular authors can be seen. Use our interactive features to learn all about your favourite author!")
 
     summary_cols(conn)
-
-    # st.header("Are you a bookworm? :book: :worm:")
-    # st.write("Request your favourite book or author to be added to our database! Authors or books added will be included in our summary statistics on the next page, and can be requested for tailored reports below once added.")
-
-    # with st.form("Author request form"):
-    #     author_request_form(conn, logger)
-
-    # st.header("Calling all publishers! :lower_left_ballpoint_pen:")
-    # st.write("We'll send you daily updates on authors of your choice - just enter your name, email, and the author you want to track, and we'll do the rest!")
-
-    # with st.form("Publisher sign-up form"):
-    #     publisher_signup_form(conn, logger)
-
 
 if __name__ == "__main__":
     logger = logging.getLogger()

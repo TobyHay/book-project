@@ -82,7 +82,10 @@ def get_author_books(author_name: int, connection: psycopg2.connect) -> pd.DataF
 
 
 def select_book(author_name: str, books: pd.DataFrame) -> str:
-    book_titles = books['book_title']
+    unique_books = books[['book_title']
+                         ].drop_duplicates().sort_values('book_title')
+
+    book_titles = unique_books['book_title']
 
     selected_book = st.selectbox(
         f"Select a book from {author_name} for ratings over time", book_titles)
@@ -197,32 +200,37 @@ def plot_line_avg_ratings_over_time(book: str, df: pd.DataFrame) -> None:
 
 
 if __name__ == "__main__":
-    col1, col2 = st.columns([10, 2])
+    try:
+        col1, col2 = st.columns([10, 2])
 
-    with col1:
-        st.title(":chart_with_upwards_trend: Statistics and Visualisations ")
-    with col2:
-        st.image("../assets/bookworm_logo_with_words.jpeg", width=500)
-    
-    conn = connect_to_database()
+        with col1:
+            st.title(":chart_with_upwards_trend: Statistics and Visualisations ")
+        with col2:
+            st.image("../assets/bookworm_logo_with_words.jpeg", width=500)
 
-    authors = get_authors(conn)
-    selected_author = select_author(authors)
+        conn = connect_to_database()
 
-    author_data = get_author_data(selected_author, conn)
-    author_books = get_author_books(selected_author, conn)
+        authors = get_authors(conn)
+        selected_author = select_author(authors)
 
-    left1, right1 = st.columns(2)
-    with left1:
-        plot_line_shelved_count_over_time(author_data)
-    with right1:
-        plot_pie_book_ratings(author_books)
-    book = select_book(selected_author, author_books)
-    left2, right2 = st.columns(2)
+        author_data = get_author_data(selected_author, conn)
+        author_books = get_author_books(selected_author, conn)
 
-    with left2:
-        plot_line_ratings_over_time(book, author_books)
+        left1, right1 = st.columns(2)
+        with left1:
+            plot_line_shelved_count_over_time(author_data)
+        with right1:
+            plot_pie_book_ratings(author_books)
+        book = select_book(selected_author, author_books)
+        left2, right2 = st.columns(2)
 
-    with right2:
+        with left2:
+            plot_line_ratings_over_time(book, author_books)
 
-        plot_line_avg_ratings_over_time(book, author_books)
+        with right2:
+
+            plot_line_avg_ratings_over_time(book, author_books)
+    except:
+        st.write("Unable to locate data")
+    finally:
+        conn.close()

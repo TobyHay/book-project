@@ -106,7 +106,7 @@ To set up the ECR repository with the Docker image, carry out the following step
 1. Build your docker image by running the command shown below while located in the dashboard directory. The `c16-book-project-dashboard-ecr` statement must be changed to your ECR name if you have specified a different name.
 
 ```
-docker build -t c16-book-project-dashboard-ecr --platform "linux/amd64" -f Dockerfile .
+docker build --provenance=false -t c16-book-project-dashboard-ecr --platform "linux/amd64" -f Dockerfile .
 ```
 
 2. Find your AWS ECR repository location on the AWS website

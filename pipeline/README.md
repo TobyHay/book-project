@@ -81,7 +81,7 @@ To add the docker image to the ECR repository, carry out the following steps aft
 1. Build your docker image by running the command shown below while located in the pipeline directory. The `c16-book-project-write-to-rds-ecr` statement must be changed to your ECR name if you have specified a different name.
 
 ```
-docker build -t c16-book-project-write-to-rds-ecr --platform "linux/amd64" -f Dockerfile .
+docker build --provenance=false -t c16-book-project-write-to-rds-ecr --platform "linux/amd64" -f Dockerfile .
 ```
 
 2. Find your AWS ECR repository location on the AWS website

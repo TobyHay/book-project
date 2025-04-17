@@ -81,37 +81,70 @@ def get_author_books(author_name: int, connection: psycopg2.connect) -> pd.DataF
     return pd.read_sql(book_query, connection, params=(author_name,))
 
 
+def get_change_in_shelved_count(author_name: str, conn: psycopg2.connect) -> pd.DataFrame:
+    '''
+    Fetches shelved count data and computes daily change for a specific author.
+    Returns a dataframe with date, daily change, and author name.
+    '''
+    shelved_count_query = """
+        SELECT
+            am.date_recorded,
+            am.shelved_count
+        FROM author_measurement AS am
+        JOIN author AS a ON a.author_id = am.author_id
+        WHERE a.author_name = %s
+        ORDER BY am.date_recorded ASC
+    """
+    try:
+        df = pd.read_sql(shelved_count_query, conn, params=(author_name,))
+        if df.empty:
+            return df
+
+        df['daily_change'] = df['shelved_count'].diff().fillna(
+            0)  # Calculate difference
+        df['author_name'] = author_name  # Add author name for plotting
+
+        return df[['date_recorded', 'daily_change', 'author_name']]
+    except Exception as e:
+        st.error(
+            f":x: Error fetching shelved count history for {author_name}: {e}")
+        return pd.DataFrame()
+
+
 def plot_line_shelved_count_over_time(author1: str, author2: str) -> None:
-    '''Plots line graph for Author's shelved count over time'''
+    '''Plots a line graph of daily shelved count changes for two authors.'''
 
-    author1_data = get_author_data(author1, conn)
-    author2_data = get_author_data(author2, conn)
-
-    df = pd.concat([author1_data, author2_data], ignore_index=True)
     if author1 == author2:
-        st.warning("Please select two unique authors")
+        st.warning("Please select two unique authors.")
         fig = px.line(title="Please select two unique authors")
         st.plotly_chart(fig)
         return
 
+    author1_change_data = get_change_in_shelved_count(author1, conn)
+    author2_change_data = get_change_in_shelved_count(author2, conn)
+
+    df = pd.concat([author1_change_data, author2_change_data],
+                   ignore_index=True)
+
     if df.empty:
-        fig = px.line(title="Shelved Count (No Data)")
+        fig = px.line(title="Shelved Count (No Data Available)")
         st.plotly_chart(fig)
         return
 
     st.markdown('<div style="height: 70px;"></div>', unsafe_allow_html=True)
 
-    fig = px.line(df,
-                  x='date_recorded',
-                  y='shelved_count',
-                  color='author_name',
-                  title=f"Shelved Count - {author1} - VS - {author2} -",
-                  labels={'date_recorded': 'Date',
-                          'shelved_count': 'Shelved Count',
-                          'author_name': 'Author'})
-
-    fig.update_traces(name='Shelved Count',
-                      selector=dict(name='shelved_count'))
+    fig = px.line(
+        df,
+        x='date_recorded',
+        y='daily_change',
+        color='author_name',
+        title=f"Daily Shelved Count Change: {author1} VS {author2}",
+        labels={
+            'date_recorded': 'Date',
+            'daily_change': 'Daily Shelved Count Added',
+            'author_name': 'Author'
+        }
+    )
 
     st.plotly_chart(fig)
 

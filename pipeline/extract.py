@@ -1,17 +1,26 @@
 '''This module explores extracting information from goodreads.com author pages.'''
 import time
 import urllib.request
+from urllib.error import URLError
 from bs4 import BeautifulSoup
 
 GOODREADS_BASE_URL = 'https://www.goodreads.com'
 BOOKS_LIST_LIMIT_URL_PARAMETERS = '?page=1&per_page=10'
 
 
+class ScrapingError(Exception):
+    pass
+
+
 def get_soup(url: str) -> BeautifulSoup:
     '''Returns a beautifulsoup HTML parser for a given goodreads.com url.'''
-    with urllib.request.urlopen(url) as page:
-        html = page.read().decode('utf-8')
-    return BeautifulSoup(html, "lxml")
+    try:
+        with urllib.request.urlopen(url, timeout=5) as page:
+            html = page.read().decode('utf-8')
+            return BeautifulSoup(html, "lxml")
+    except URLError as error:
+        print(error.args[0])
+        raise ScrapingError(f"Unable to scrape {url}.")
 
 
 def get_authors_books_url(author_soup: BeautifulSoup) -> str:

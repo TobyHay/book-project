@@ -6,12 +6,12 @@ from unittest.mock import patch
 import extract
 
 
-def get_file_path(filename):
+def get_file_path(filename: str) -> str:
     return path.join(path.dirname(__file__), filename)
 
 
 @pytest.fixture
-def mock_book_page_soup():
+def mock_book_page_soup() -> BeautifulSoup:
     '''Simulates the soup for the HTML for a goodreads book page used for testing.'''
     filepath = get_file_path('test_book_page.html')
     with open(filepath, 'r', encoding="utf-8") as f:
@@ -20,7 +20,7 @@ def mock_book_page_soup():
 
 
 @pytest.fixture
-def mock_book_list_page_soup():
+def mock_book_list_page_soup() -> BeautifulSoup:
     '''Simulates the soup for the HTML for a goodreads book list page used for testing.'''
     filepath = get_file_path('test_book_list.html')
     with open(filepath, 'r', encoding="utf-8") as f:
@@ -29,7 +29,7 @@ def mock_book_list_page_soup():
 
 
 @pytest.fixture
-def mock_author_page_soup():
+def mock_author_page_soup() -> BeautifulSoup:
     '''Simulates the soup for the HTML for a goodreads author page used for testing.'''
     filepath = get_file_path('test_author_page.html')
     with open(filepath, 'r', encoding="utf-8") as f:
@@ -38,14 +38,14 @@ def mock_author_page_soup():
 
 
 @pytest.fixture
-def mock_book_list_page_containers_sliced(mock_book_list_page_soup):
+def mock_book_list_page_containers_sliced(mock_book_list_page_soup) -> list[BeautifulSoup]:
     '''Gets a list of the html for the top 2 book containers in the 
     goodreads author's book list page.'''
     return mock_book_list_page_soup.find_all("tr")[:1]
 
 
 @pytest.fixture
-def mock_book_list_page_container_soup(mock_book_list_page_containers_sliced):
+def mock_book_list_page_container_soup(mock_book_list_page_containers_sliced) -> BeautifulSoup:
     return mock_book_list_page_containers_sliced[0]
 
 

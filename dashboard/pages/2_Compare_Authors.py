@@ -7,6 +7,9 @@ import streamlit as st
 import psycopg2
 import plotly.express as px
 
+st.set_page_config(layout="wide")
+
+
 load_dotenv()
 
 
@@ -169,15 +172,21 @@ def plot_bar_books_per_author(df: pd.DataFrame) -> None:
                  x='author_name',
                  y='books',
                  title='Books Published Per Author',
-                 labels={'author': 'Author', 'books': 'Number of Books'},
+                 labels={'author_name': 'Author', 'books': 'Number of Books'},
                  color='books')
 
     st.plotly_chart(fig)
 
 
 if __name__ == "__main__":
-    st.set_page_config(layout="wide")
     try:
+        col1, col2 = st.columns([10, 2])
+
+        with col1:
+            st.title(":scales: Compare Authors")
+        with col2:
+            st.image("../assets/bookworm_logo.jpeg", width=500)
+
         conn = connect_to_database()
 
         all_authors = get_author_book_data(conn)

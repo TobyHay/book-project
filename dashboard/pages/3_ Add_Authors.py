@@ -200,7 +200,7 @@ def streamlit(conn):
     with col1:
         st.title(":bust_in_silhouette: Add Authors")
     with col2:
-        st.image("../assets/bookworm_logo_with_words.jpeg", width=250)
+        st.image("../assets/bookworm_logo.jpeg", width=250)
 
     st.header("Are you a bookworm? :book:")
     st.write("Request your favourite book or author to be added to our database! Authors or books added will be included in our summary statistics on the next page, and can be requested for tailored reports below once added.")
